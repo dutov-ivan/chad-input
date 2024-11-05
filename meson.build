@@ -6,15 +6,27 @@ inc_dirs = include_directories('.', 'unity/src', 'src')
 
 # Main program sources
 main_sources = [
-  'src/hello.c',
-  'src/main.c'
+  'src/main.c',
+  # Input
+  'src/input/common_utils.c',
+  'src/input/int_utils.c',
+  'src/input/long_double_utils.c'
 ]
 
 # Test program sources
 test_sources = [
-  'src/hello.c',
-  'test/hello_test.c',
+  # Input 
+  'src/input/common_utils.c',
+  'src/input/int_utils.c',
+  'src/input/long_double_utils.c',
+
+  # Input tests 
+  'test/input/test_common_utils.c',
+  'test/input/test_int_utils.c',
+  'test/input/test_long_double_utils.c',
   'test/test.c',
+
+  # Testing library import
   'unity/src/unity.c',
 ]
 
@@ -22,14 +34,14 @@ test_sources = [
 executable('main.out', main_sources,
   c_args: c_args,
   include_directories: inc_dirs,
-  link_args: []
+  link_args: ['-lm']
 )
 
 # Define the test executable
 executable('test.out', test_sources,
   c_args: c_args,
   include_directories: inc_dirs,
-  link_args: []
+  link_args: ['-lm']
 )
 
 
