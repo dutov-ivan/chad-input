@@ -3,7 +3,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "input.h"
 
@@ -55,44 +54,48 @@ int check_long_double_flow(long double *value, const char *name) {
   return SUCCESS;
 }
 
+void prompt_user_input_long_double(const char *name, int is_restricted,
+                                   long double min_value,
+                                   long double max_value) {
+  if (is_restricted == 1) {
+    printf("Введіть %s (від %Lg до %Lg): ", name, min_value, max_value);
+  } else {
+    printf("Введіть %s: ", name);
+  }
+}
+
+int convert_and_validate_long_double(const char *input, long double *value,
+                                     const char *name) {
+  char *endptr;
+  *value = strtold(input, &endptr);
+
+  if (endptr == input || *endptr != '\n') {
+    display_error("%s має бути числом і не містити додаткових символів!", name);
+    return ERROR;
+  }
+
+  if (errno == ERANGE && check_long_double_flow(value, name) == ERROR) {
+    return ERROR;
+  }
+  return SUCCESS;
+}
+
 int read_long_double(long double *value, const char *full_name,
                      const char *short_name, int max_char_count,
                      int is_restricted, long double max_value,
                      long double min_value, int is_max_included,
                      int is_min_included) {
-  if (is_restricted == 1) {
-    printf("Введіть %s (від %Lg до %Lg): ", full_name, min_value, max_value);
-  } else {
-    printf("Введіть %s: ", full_name);
-  }
-
   char input[max_char_count + 2];
-  char *endptr;
   errno = 0;
 
-  if (!fgets(input, max_char_count + 2, stdin)) {
-    display_error("Не вдалося прочитати ввід для %s.", full_name);
+  if (read_input_and_validate_length(input, max_char_count, full_name) ==
+      ERROR) {
     return ERROR;
-  }
-
-  if (input[strlen(input) - 1] != '\n') {
-    display_error("Довжина %s в символах має бути меншою за %u.", short_name,
-                  max_char_count);
-    clear_input();
-    return ERROR;
-  }
+  };
 
   replace_commas_with_dots(input);
 
-  *value = strtold(input, &endptr);
-
-  if (endptr == input || *endptr != '\n') {
-    display_error("%s має бути числом і не містити додаткових символів!",
-                  short_name);
-    return ERROR;
-  }
-
-  if (errno == ERANGE && check_long_double_flow(value, short_name) == ERROR) {
+  if (convert_and_validate_long_double(input, value, full_name) == ERROR) {
     return ERROR;
   }
 

@@ -5,11 +5,13 @@
 #define GREEN "\033[32m"
 #define YELLOW "\033[33m"
 #define RESET "\033[0m"
+
 #define SUCCESS 0
 #define ERROR 1
 #define TOLERANCE 1e-7
 
 void clear_input();
+int check_if_floating_point(char *str);
 int request_repeat();
 int display_error(const char *format, ...)
     __attribute__((format(printf, 1, 2)));
@@ -55,8 +57,6 @@ int check_int_meets_restrictions(int *value, const char *name, int max_value,
                                  int min_value, int is_max_included,
                                  int is_min_included);
 
-int check_long_double_flow(long double *value, const char *name);
-int check_long_int_flow(long int *value, const char *name);
-int check_if_floating_point(char *str);
-
+int read_input_and_validate_length(char *input, int max_char_count,
+                                   const char *name);
 #endif

@@ -111,3 +111,18 @@ int display_success(const char *format, ...) {
   va_end(args);
   return 1;
 }
+
+int read_input_and_validate_length(char *input, int max_char_count,
+                                   const char *name) {
+  if (!fgets(input, max_char_count + 2, stdin)) {
+    display_error("Не вдалося прочитати ввід для %s.\n", name);
+    return ERROR;
+  }
+  if (input[strlen(input) - 1] != '\n') {
+    display_error("Довжина %s в символах має бути меншою за %d.\n", name,
+                  max_char_count);
+    clear_input();
+    return ERROR;
+  }
+  return SUCCESS;
+}

@@ -1,76 +1,62 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "input.h"
 
 int check_int_meets_restrictions(int *value, const char *name, int max_value,
                                  int min_value, int is_max_included,
                                  int is_min_included) {
-  if (is_min_included) {
-    if (*value < min_value) {
-      display_error("%s має бути більший-рівний %d.", name, min_value);
-      return ERROR;
-    }
-  } else {
-    if (*value <= min_value) {
-      display_error("%s має бути більший за %d.", name, min_value);
-      return ERROR;
-    }
+  if ((is_min_included && *value < min_value) ||
+      (!is_min_included && *value <= min_value)) {
+    display_error("%s має бути %s %d", name,
+                  is_min_included ? "більший-рівний" : "більший за", min_value);
+    return ERROR;
   }
 
-  if (is_max_included) {
-    if (*value > max_value) {
-      display_error("%s має бути менший-рівний %d.", name, max_value);
-      return ERROR;
-    }
-  } else {
-    if (*value >= max_value) {
-      display_error("%s має бути менший за %d.", name, max_value);
-      return ERROR;
-    }
+  if ((is_max_included && *value > max_value) ||
+      (!is_max_included && *value >= max_value)) {
+    display_error("%s має бути %s %d", name,
+                  is_min_included ? "менший-рівний" : "менший за", min_value);
+    return ERROR;
   }
 
   return SUCCESS;
 }
 
-int check_int_flow(long int *value, char *name) {
-  if (*value > (long)INT_MAX) {
-    display_error(
-        "Значення %s настільки велике, що неприпустиме для "
-        "використання.",
-        name);
+void prompt_user_input_int(const char *name, int is_restricted, int min_value,
+                           int max_value) {
+  if (is_restricted) {
+    printf("Введіть %s (від %d до %d): ", name, min_value, max_value);
+  } else {
+    printf("Введіть %s: ", name);
+  }
+}
+
+int convert_and_validate_int(const char *input, int *value, const char *name) {
+  char *endptr;
+  long temp_value = strtol(input, &endptr, 10);
+
+  if (endptr == input || *endptr != '\n') {
+    display_error("%s має бути числом і не містити додаткових символів!\n",
+                  name);
     return ERROR;
   }
-  if (*value < (long)INT_MIN) {
-    display_error(
-        "Значення %s настільки мале, що неприпустиме для використання.", name);
-    return ERROR;
-  }
+
+  *value = temp_value;
+
   return SUCCESS;
 }
 
 int read_int(int *value, const char *full_name, const char *short_name,
              int max_char_count, int is_restricted, int max_value,
              int min_value, int is_max_included, int is_min_included) {
-  if (is_restricted) {
-    printf("Введіть %s (від %d до %d): ", full_name, min_value, max_value);
-  } else {
-    printf("Введіть %s: ", full_name);
-  }
+  prompt_user_input_int(full_name, is_restricted, min_value, max_value);
 
   char input[max_char_count + 2];
-  char *endptr;
 
-  if (!fgets(input, max_char_count + 2, stdin)) {
-    display_error("Не вдалося прочитати ввід для %s.\n", full_name);
-    return ERROR;
-  }
-  if (input[strlen(input) - 1] != '\n') {
-    display_error("Довжина %s в символах має бути меншою за %d.\n", short_name,
-                  max_char_count);
-    clear_input();
+  if (read_input_and_validate_length(input, max_char_count, full_name) ==
+      ERROR) {
     return ERROR;
   }
 
@@ -79,25 +65,13 @@ int read_int(int *value, const char *full_name, const char *short_name,
     return ERROR;
   }
 
-  long temp_value = strtol(input, &endptr, 10);
-
-  if (temp_value > INT_MAX || temp_value < INT_MIN) {
-    display_error("%s значення перевищує допустимі межі для int.\n",
-                  short_name);
+  if (convert_and_validate_int(input, value, short_name) == ERROR) {
     return ERROR;
   }
-
-  if (endptr == input || *endptr != '\n') {
-    display_error("%s має бути числом і не містити додаткових символів!\n",
-                  short_name);
-    return ERROR;
-  }
-
-  *value = (int)temp_value;
 
   if (is_restricted &&
       check_int_meets_restrictions(value, short_name, max_value, min_value,
-                                   is_max_included, is_min_included)) {
+                                   is_max_included, is_min_included) == ERROR) {
     return ERROR;
   }
 
