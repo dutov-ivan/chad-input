@@ -25,6 +25,7 @@ test_sources = [
   'test/input/test_int_utils.c',
   'test/input/test_long_double_utils.c',
   'test/test.c',
+  'test/input/utils.c',
 
   # Testing library import
   'unity/src/unity.c',

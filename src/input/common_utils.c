@@ -1,26 +1,8 @@
-#include "input.h"
-
 #include <stdarg.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
-void mock_input(const char *input) {
-  FILE *temp = fopen("test_input.txt", "w");
-  if (!temp) {
-    perror("fopen");
-    exit(EXIT_FAILURE);
-  }
-
-  fputs(input, temp);
-  fclose(temp);
-
-  temp = freopen("test_input.txt", "r", stdin);
-  if (!temp) {
-    perror("freopen");
-    exit(EXIT_FAILURE);
-  }
-}
+#include "input.h"
 
 void replace_commas_with_dots(char *string) {
   while (*string) {
@@ -29,6 +11,47 @@ void replace_commas_with_dots(char *string) {
     }
     string++;
   }
+}
+
+int check_if_floating_point(char *str) {
+  while (*str) {
+    switch (*str) {
+      case '.':
+      case ',':
+      case 'e':
+      case 'E':
+        return 1;
+      default:
+        break;
+    }
+    str++;
+  }
+  return 0;
+}
+
+void clear_input() {
+  int c;
+  while ((c = getchar()) != '\n' && c != EOF);
+}
+
+int request_repeat() {
+  char choice[3];
+  printf(
+      "Продовжити? Введіть '+' для продовження або будь-яку іншу клавішу, якщо "
+      "не погоджуєтесь: ");
+
+  if (!fgets(choice, sizeof(choice), stdin)) {
+    printf("Помилка читання вводу.\n");
+    return 1;
+  }
+
+  if (choice[0] == '+' && choice[1] == '\n') {
+    return 0;
+  }
+
+  clear_input();
+
+  return 1;
 }
 
 int validate_input_precision(const char *input, int max_significant_digits) {
@@ -43,9 +66,10 @@ int validate_input_precision(const char *input, int max_significant_digits) {
   }
 
   if (significant_digits > max_significant_digits) {
-    display_warning("Ввід перевищує максимальну дозволену кількість значущих "
-                    "цифр %d. Розрахунки можуть бути неточними",
-                    max_significant_digits);
+    display_warning(
+        "Ввід перевищує максимальну дозволену кількість значущих "
+        "цифр %d. Розрахунки можуть бути неточними",
+        max_significant_digits);
     return 1;
   }
 
