@@ -1,9 +1,31 @@
-#include "../unity/src/unity.h"
-#include "test_input.h"
+#include "test.h"
 
-/* Set up and tear down functions for Unity test framework */
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "../unity/src/unity.h"
+
 void setUp() {}
 void tearDown() {}
+
+#include "test.h"
+
+void mock_input(const char *input) {
+  FILE *temp = fopen("test_input.txt", "w");
+  if (!temp) {
+    perror("fopen");
+    exit(EXIT_FAILURE);
+  }
+
+  fputs(input, temp);
+  fclose(temp);
+
+  temp = freopen("test_input.txt", "r", stdin);
+  if (!temp) {
+    perror("freopen");
+    exit(EXIT_FAILURE);
+  }
+}
 
 int main() {
   UNITY_BEGIN();

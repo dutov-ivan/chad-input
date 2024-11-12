@@ -10,6 +10,7 @@
 
 #define SUCCESS 0
 #define ERROR 1
+#define PIPE 1
 #define TOLERANCE 1e-7
 
 void clear_input();
@@ -23,7 +24,7 @@ int display_success(const char *format, ...)
     __attribute__((format(printf, 1, 2)));
 
 void replace_commas_with_dots(char *string);
-int validate_input_precision(const char *input, int max_significant_digits);
+bool is_input_precise(const char *input, int max_significant_digits);
 
 int read_int(int *value, const char *full_name, const char *short_name,
              int max_char_count, int is_restricted, int max_value,

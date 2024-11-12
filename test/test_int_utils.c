@@ -1,6 +1,6 @@
 #include "../src/input.h"
 #include "../unity/src/unity.h"
-#include "test_input.h"
+#include "test.h"
 
 // Test for is_int_in_range function
 void test_is_int_in_range_valid_inclusive(void) {

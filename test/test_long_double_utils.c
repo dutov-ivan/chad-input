@@ -2,7 +2,7 @@
 
 #include "../src/input.h"
 #include "../unity/src/unity.h"
-#include "test_input.h"
+#include "test.h"
 
 #ifndef TOLERANCE
 #define TOLERANCE 1e-20

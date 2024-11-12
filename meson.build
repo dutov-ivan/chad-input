@@ -15,7 +15,6 @@ test_sources = [
   'test/test_common_utils.c',
   'test/test_int_utils.c',
   'test/test_long_double_utils.c',
-  'test/utils.c',
   'test/test.c',
 
   # Testing library import
