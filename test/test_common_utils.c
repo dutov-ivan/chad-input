@@ -1,5 +1,5 @@
-#include "../../src/input/input.h"
-#include "../../unity/src/unity.h"
+#include "../src/input.h"
+#include "../unity/src/unity.h"
 #include "test_input.h"
 
 void test_replace_commas_with_dots_basic(void) {

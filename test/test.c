@@ -1,5 +1,5 @@
 #include "../unity/src/unity.h"
-#include "test/input/test_input.h"
+#include "test_input.h"
 
 /* Set up and tear down functions for Unity test framework */
 void setUp() {}

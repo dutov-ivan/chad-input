@@ -1,7 +1,7 @@
 #include <string.h>
 
-#include "../../src/input/input.h"
-#include "../../unity/src/unity.h"
+#include "../src/input.h"
+#include "../unity/src/unity.h"
 #include "test_input.h"
 
 #ifndef TOLERANCE
