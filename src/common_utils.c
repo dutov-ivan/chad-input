@@ -13,20 +13,20 @@ void replace_commas_with_dots(char *string) {
   }
 }
 
-int check_if_floating_point(char *str) {
+bool is_input_floating_point(char *str) {
   while (*str) {
     switch (*str) {
       case '.':
       case ',':
       case 'e':
       case 'E':
-        return 1;
+        return true;
       default:
         break;
     }
     str++;
   }
-  return 0;
+  return false;
 }
 
 void clear_input() {
@@ -112,17 +112,21 @@ int display_success(const char *format, ...) {
   return 1;
 }
 
-int read_input_and_validate_length(char *input, int max_char_count,
-                                   const char *name) {
-  if (!fgets(input, max_char_count + 2, stdin)) {
-    display_error("Не вдалося прочитати ввід для %s.\n", name);
-    return ERROR;
-  }
+bool is_input_length_valid(char *input, int max_char_count, const char *name) {
   if (input[strlen(input) - 1] != '\n') {
     display_error("Довжина %s в символах має бути меншою за %d.\n", name,
                   max_char_count);
     clear_input();
+    return false;
+  }
+  return true;
+}
+
+int read_input(char *input, int max_char_count, const char *name) {
+  if (!fgets(input, max_char_count + 2, stdin)) {
+    display_error("Не вдалося прочитати ввід для %s.\n", name);
     return ERROR;
   }
+
   return SUCCESS;
 }

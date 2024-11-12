@@ -2,35 +2,30 @@
 #include "../unity/src/unity.h"
 #include "test_input.h"
 
-// Test for check_int_meets_restrictions function
-void test_check_int_meets_restrictions_valid_inclusive(void) {
+// Test for is_int_in_range function
+void test_is_int_in_range_valid_inclusive(void) {
   int value = 5;
-  int result = check_int_meets_restrictions(&value, "number", 10, 0, 1, 1);
-  TEST_ASSERT_EQUAL(0, result);  // Expect success (0)
+  TEST_ASSERT_TRUE(is_int_in_range(&value, "number", 10, 0, 1, 1));
 }
 
-void test_check_int_meets_restrictions_valid_exclusive(void) {
+void test_is_int_in_range_valid_exclusive(void) {
   int value = 5;
-  int result = check_int_meets_restrictions(&value, "number", 10, 0, 0, 0);
-  TEST_ASSERT_EQUAL(0, result);  // Expect success (0)
+  TEST_ASSERT_TRUE(is_int_in_range(&value, "number", 10, 0, 0, 0));
 }
 
-void test_check_int_meets_restrictions_high_exclusive(void) {
+void test_is_int_in_range_high_exclusive(void) {
   int value = 10;
-  int result = check_int_meets_restrictions(&value, "number", 10, 0, 0, 1);
-  TEST_ASSERT_EQUAL(1, result);  // Expect failure (1)
+  TEST_ASSERT_TRUE(!is_int_in_range(&value, "number", 10, 0, 0, 1));
 }
 
-void test_check_int_meets_restrictions_low_exclusive(void) {
+void test_is_int_in_range_low_exclusive(void) {
   int value = 0;
-  int result = check_int_meets_restrictions(&value, "number", 10, 0, 1, 0);
-  TEST_ASSERT_EQUAL(1, result);  // Expect failure (1)
+  TEST_ASSERT_TRUE(!is_int_in_range(&value, "number", 10, 0, 1, 0));
 }
 
-void test_check_int_meets_restrictions_low_inclusive(void) {
+void test_is_int_in_range_low_inclusive(void) {
   int value = -1;
-  int result = check_int_meets_restrictions(&value, "number", 10, 0, 1, 1);
-  TEST_ASSERT_EQUAL(1, result);  // Expect failure (1)
+  TEST_ASSERT_TRUE(!is_int_in_range(&value, "number", 10, 0, 1, 1));
 }
 
 // Test: Valid input (within range, inclusive boundaries)
@@ -122,11 +117,11 @@ void test_read_int_valid_min_value_inclusive(void) {
 }
 
 void test_int_utils() {
-  RUN_TEST(test_check_int_meets_restrictions_valid_inclusive);
-  RUN_TEST(test_check_int_meets_restrictions_valid_exclusive);
-  RUN_TEST(test_check_int_meets_restrictions_high_exclusive);
-  RUN_TEST(test_check_int_meets_restrictions_low_exclusive);
-  RUN_TEST(test_check_int_meets_restrictions_low_inclusive);
+  RUN_TEST(test_is_int_in_range_valid_inclusive);
+  RUN_TEST(test_is_int_in_range_valid_exclusive);
+  RUN_TEST(test_is_int_in_range_high_exclusive);
+  RUN_TEST(test_is_int_in_range_low_exclusive);
+  RUN_TEST(test_is_int_in_range_low_inclusive);
 
   RUN_TEST(test_read_int_valid_input_inclusive);
   RUN_TEST(test_read_int_out_of_range_high_exclusive);

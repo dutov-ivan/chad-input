@@ -8,40 +8,30 @@
 #define TOLERANCE 1e-20
 #endif
 
-// Test for check_long_double_meets_restrictions function
-void test_check_long_double_meets_restrictions_valid_inclusive(void) {
+// Test for is_long_double_in_range function
+void test_is_long_double_in_range_valid_inclusive(void) {
   long double value = 5.0;
-  int result =
-      check_long_double_meets_restrictions(&value, "number", 10.0, 0.0, 1, 1);
-  TEST_ASSERT_EQUAL(0, result);  // Expect success (0)
+  TEST_ASSERT_TRUE(is_long_double_in_range(&value, "number", 10.0, 0.0, 1, 1));
 }
 
-void test_check_long_double_meets_restrictions_valid_exclusive(void) {
+void test_is_long_double_in_range_valid_exclusive(void) {
   long double value = 5.0;
-  int result =
-      check_long_double_meets_restrictions(&value, "number", 10.0, 0.0, 0, 0);
-  TEST_ASSERT_EQUAL(0, result);  // Expect success (0)
+  TEST_ASSERT_TRUE(is_long_double_in_range(&value, "number", 10.0, 0.0, 0, 0));
 }
 
-void test_check_long_double_meets_restrictions_high_exclusive(void) {
+void test_is_long_double_in_range_high_exclusive(void) {
   long double value = 10.0;
-  int result =
-      check_long_double_meets_restrictions(&value, "number", 10.0, 0.0, 0, 1);
-  TEST_ASSERT_EQUAL(1, result);  // Expect failure (1)
+  TEST_ASSERT_TRUE(!is_long_double_in_range(&value, "number", 10.0, 0.0, 0, 1));
 }
 
-void test_check_long_double_meets_restrictions_low_exclusive(void) {
+void test_is_long_double_in_range_low_exclusive(void) {
   long double value = 0.0;
-  int result =
-      check_long_double_meets_restrictions(&value, "number", 10.0, 0.0, 1, 0);
-  TEST_ASSERT_EQUAL(1, result);  // Expect failure (1)
+  TEST_ASSERT_TRUE(!is_long_double_in_range(&value, "number", 10.0, 0.0, 1, 0));
 }
 
-void test_check_long_double_meets_restrictions_low_inclusive(void) {
+void test_is_long_double_in_range_low_inclusive(void) {
   long double value = -1.0;
-  int result =
-      check_long_double_meets_restrictions(&value, "number", 10.0, 0.0, 1, 1);
-  TEST_ASSERT_EQUAL(1, result);  // Expect failure (1)
+  TEST_ASSERT_TRUE(!is_long_double_in_range(&value, "number", 10.0, 0.0, 1, 1));
 }
 
 // Test: Valid input (unrestricted)
@@ -170,11 +160,11 @@ void test_read_long_double_underflow(void) {
 }
 
 void test_long_double_utils() {
-  RUN_TEST(test_check_long_double_meets_restrictions_valid_inclusive);
-  RUN_TEST(test_check_long_double_meets_restrictions_valid_exclusive);
-  RUN_TEST(test_check_long_double_meets_restrictions_high_exclusive);
-  RUN_TEST(test_check_long_double_meets_restrictions_low_exclusive);
-  RUN_TEST(test_check_long_double_meets_restrictions_low_inclusive);
+  RUN_TEST(test_is_long_double_in_range_valid_inclusive);
+  RUN_TEST(test_is_long_double_in_range_valid_exclusive);
+  RUN_TEST(test_is_long_double_in_range_high_exclusive);
+  RUN_TEST(test_is_long_double_in_range_low_exclusive);
+  RUN_TEST(test_is_long_double_in_range_low_inclusive);
 
   RUN_TEST(test_read_long_double_valid_input_unrestricted);
   RUN_TEST(test_read_long_double_valid_input_restricted);

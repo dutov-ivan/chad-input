@@ -6,54 +6,6 @@
 
 #include "input.h"
 
-int check_long_double_meets_restrictions(long double *value, const char *name,
-                                         long double max_value,
-                                         long double min_value,
-                                         int is_max_included,
-                                         int is_min_included) {
-  if (is_min_included) {
-    if (*value < min_value - TOLERANCE) {
-      display_error("%s має бути більший-рівний %Lg.", name, min_value);
-      return ERROR;
-    }
-  } else {
-    if (*value <= min_value + TOLERANCE) {
-      display_error("%s має бути більший за %Lg.", name, min_value);
-      return ERROR;
-    }
-  }
-
-  if (is_max_included) {
-    if (*value > max_value + TOLERANCE) {
-      display_error("%s має бути менший-рівний %Lg.", name, max_value);
-      return ERROR;
-    }
-  } else {
-    if (*value >= max_value - TOLERANCE) {
-      display_error("%s має бути менший за %Lg.", name, max_value);
-      return ERROR;
-    }
-  }
-  return SUCCESS;
-}
-
-int check_long_double_flow(long double *value, const char *name) {
-  if (fabsl(*value) < LDBL_MIN) {
-    display_error(
-        "Значення %s настільки мале, що неприпустиме для "
-        "використання.",
-        name);
-    return ERROR;
-  } else if (*value == HUGE_VALL || *value == -HUGE_VALL) {
-    display_error(
-        "Значення %s настільки абсолютно велике, що неприпустиме для "
-        "використання.",
-        name);
-    return ERROR;
-  }
-  return SUCCESS;
-}
-
 void prompt_user_input_long_double(const char *name, int is_restricted,
                                    long double min_value,
                                    long double max_value) {
@@ -64,44 +16,73 @@ void prompt_user_input_long_double(const char *name, int is_restricted,
   }
 }
 
-int convert_and_validate_long_double(const char *input, long double *value,
-                                     const char *name) {
+bool is_long_double_in_range(long double *value, const char *name,
+                             long double max_value, long double min_value,
+                             bool is_max_included, bool is_min_included) {
+  if ((is_min_included && *value < min_value - TOLERANCE) ||
+      (!is_min_included && *value <= min_value + TOLERANCE)) {
+    display_error("%s має бути %s %Lg", name,
+                  is_min_included ? "більший-рівний" : "більший за", min_value);
+    return false;
+  }
+
+  if ((is_max_included && *value > max_value + TOLERANCE) ||
+      (!is_max_included && *value >= max_value - TOLERANCE)) {
+    display_error("%s має бути %s %Lg", name,
+                  is_min_included ? "менший-рівний" : "менший за", min_value);
+    return false;
+  }
+
+  return true;
+}
+
+bool is_long_double_flow(long double *value, const char *name) {
+  return (fabsl(*value) < LDBL_MIN || fabsl(*value) == HUGE_VALL);
+}
+
+bool is_long_double_input_valid(const char *input, long double *value,
+                                const char *name) {
   char *endptr;
   *value = strtold(input, &endptr);
 
   if (endptr == input || *endptr != '\n') {
     display_error("%s має бути числом і не містити додаткових символів!", name);
-    return ERROR;
+    return false;
   }
 
-  if (errno == ERANGE && check_long_double_flow(value, name) == ERROR) {
-    return ERROR;
+  if (errno == ERANGE && is_long_double_flow(value, name) == ERROR) {
+    display_error("Повинно бути %Lg < %s < %Lg або %Lg < %s < %Lg", -HUGE_VALL,
+                  name, -LDBL_MIN, LDBL_MIN, name, HUGE_VALL);
+    return false;
   }
-  return SUCCESS;
+  return true;
 }
 
 int read_long_double(long double *value, const char *full_name,
                      const char *short_name, int max_char_count,
-                     int is_restricted, long double max_value,
-                     long double min_value, int is_max_included,
-                     int is_min_included) {
+                     bool is_restricted, long double max_value,
+                     long double min_value, bool is_max_included,
+                     bool is_min_included) {
   char input[max_char_count + 2];
   errno = 0;
 
-  if (read_input_and_validate_length(input, max_char_count, full_name) ==
-      ERROR) {
+  if (read_input(input, max_char_count, full_name) == ERROR) {
     return ERROR;
   };
 
-  replace_commas_with_dots(input);
-
-  if (convert_and_validate_long_double(input, value, full_name) == ERROR) {
+  if (!is_input_length_valid(input, max_char_count, full_name)) {
     return ERROR;
   }
 
-  if (is_restricted == 1 && check_long_double_meets_restrictions(
-                                value, short_name, max_value, min_value,
-                                is_max_included, is_min_included) == ERROR) {
+  replace_commas_with_dots(input);
+
+  if (!is_long_double_input_valid(input, value, full_name)) {
+    return ERROR;
+  }
+
+  if (is_restricted &&
+      !is_long_double_in_range(value, short_name, max_value, min_value,
+                               is_max_included, is_min_included) == ERROR) {
     return ERROR;
   }
 
