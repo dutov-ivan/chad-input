@@ -116,7 +116,7 @@ void test_read_int_valid_min_value_inclusive(void) {
   TEST_ASSERT_EQUAL(0, result);  // Expect success (0), min_value is inclusive
 }
 
-void test_int_utils() {
+void test_int() {
   RUN_TEST(test_is_int_in_range_valid_inclusive);
   RUN_TEST(test_is_int_in_range_valid_exclusive);
   RUN_TEST(test_is_int_in_range_high_exclusive);

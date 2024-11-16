@@ -159,7 +159,44 @@ void test_read_long_double_underflow(void) {
   TEST_ASSERT_EQUAL(1, result);
 }
 
-void test_long_double_utils() {
+void test_truncate_positive_numbers(void) {
+  TEST_ASSERT_EQUAL_DOUBLE(
+      3.1415926535L,
+      truncate_long_double(3.14159265358979323846L,
+                           10));  // Truncate to 10 decimal places
+  TEST_ASSERT_EQUAL_DOUBLE(123.45678L,
+                           truncate_long_double(123.456789012345L, 5));
+}
+
+void test_truncate_negative_numbers(void) {
+  TEST_ASSERT_EQUAL_DOUBLE(
+      -3.1415926535L,
+      truncate_long_double(-3.14159265358979323846L,
+                           10));  // Truncate to 10 decimal places
+  TEST_ASSERT_EQUAL_DOUBLE(-123.45678L,
+                           truncate_long_double(-123.456789012345L, 5));
+}
+
+void test_truncate_zero(void) {
+  TEST_ASSERT_EQUAL_DOUBLE(0.0L, truncate_long_double(0.0L, 5));
+}
+
+void test_truncate_small_values(void) {
+  TEST_ASSERT_EQUAL_DOUBLE(1e-10L,
+                           truncate_long_double(1.234567890123456789e-10L, 10));
+}
+
+void test_truncate_large_values(void) {
+  TEST_ASSERT_EQUAL_DOUBLE(
+      1.234567890123456789e+100L,
+      truncate_long_double(1.234567890123456789e+100L, 15));
+}
+
+void test_truncate_no_decimal_places(void) {
+  TEST_ASSERT_EQUAL_DOUBLE(123.0L, truncate_long_double(123.456789012345L, 0));
+}
+
+void test_long_double() {
   RUN_TEST(test_is_long_double_in_range_valid_inclusive);
   RUN_TEST(test_is_long_double_in_range_valid_exclusive);
   RUN_TEST(test_is_long_double_in_range_high_exclusive);
@@ -178,4 +215,10 @@ void test_long_double_utils() {
   RUN_TEST(test_read_long_double_min_value_inclusive);
   RUN_TEST(test_read_long_double_overflow);
   RUN_TEST(test_read_long_double_underflow);
+  RUN_TEST(test_truncate_positive_numbers);
+  RUN_TEST(test_truncate_negative_numbers);
+  RUN_TEST(test_truncate_zero);
+  RUN_TEST(test_truncate_small_values);
+  RUN_TEST(test_truncate_large_values);
+  RUN_TEST(test_truncate_no_decimal_places);
 }

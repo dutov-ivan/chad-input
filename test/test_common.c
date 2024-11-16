@@ -32,7 +32,7 @@ void test_is_input_precise_zero_digits(void) {
   TEST_ASSERT_TRUE(!is_input_precise("0.0000000", 0));
 }
 
-void test_common_utils() {
+void test_common() {
   RUN_TEST(test_replace_commas_with_dots_basic);
   RUN_TEST(test_replace_commas_with_dots_no_commas);
   RUN_TEST(test_replace_commas_with_dots_multiple_commas);

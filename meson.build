@@ -7,14 +7,14 @@ inc_dirs = include_directories('.', 'unity/src', 'src')
 # Test program sources
 test_sources = [
   # Input 
-  'src/common_utils.c',
-  'src/int_utils.c',
-  'src/long_double_utils.c',
+  'src/common.c',
+  'src/int.c',
+  'src/long_double.c',
 
   # Input tests 
-  'test/test_common_utils.c',
-  'test/test_int_utils.c',
-  'test/test_long_double_utils.c',
+  'test/test_common.c',
+  'test/test_int.c',
+  'test/test_long_double.c',
   'test/test.c',
 
   # Testing library import

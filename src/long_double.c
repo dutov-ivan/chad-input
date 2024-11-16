@@ -36,6 +36,19 @@ bool is_long_double_in_range(long double *value, const char *name,
   return true;
 }
 
+long double truncate_long_double(long double num, int decimal_places) {
+  long double factor = powl(10, decimal_places);
+  return truncl(num * factor) / factor;
+}
+
+bool is_long_double_input_precise(const char *input) {
+  return is_input_precise(input, LDBL_DIG);
+}
+
+void print_long_double_precise(long double num, int decimal_places) {
+  printf("%.*Lf", decimal_places, truncate_long_double(num, decimal_places));
+}
+
 bool is_long_double_flow(long double *value, const char *name) {
   return (fabsl(*value) < LDBL_MIN || fabsl(*value) == HUGE_VALL);
 }
@@ -68,7 +81,7 @@ int read_long_double(long double *value, const char *full_name,
 
   if (read_input(input, max_char_count, full_name) == ERROR) {
     return ERROR;
-  };
+  }
 
   if (!is_input_length_valid(input, max_char_count, full_name)) {
     return ERROR;
@@ -85,6 +98,8 @@ int read_long_double(long double *value, const char *full_name,
                                is_max_included, is_min_included) == ERROR) {
     return ERROR;
   }
+
+  is_long_double_input_precise(input);
 
   return SUCCESS;
 }

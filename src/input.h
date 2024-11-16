@@ -23,6 +23,10 @@ int display_warning(const char *format, ...)
 int display_success(const char *format, ...)
     __attribute__((format(printf, 1, 2)));
 
+long double truncate_long_double(long double num, int decimal_places);
+bool is_long_double_input_precise(const char *input);
+void print_long_double_precise(long double num, int decimal_places);
+
 void replace_commas_with_dots(char *string);
 bool is_input_precise(const char *input, int max_significant_digits);
 

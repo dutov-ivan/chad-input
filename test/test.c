@@ -30,9 +30,9 @@ void mock_input(const char *input) {
 int main() {
   UNITY_BEGIN();
   printf("Running input tests\n");
-  test_common_utils();
-  test_int_utils();
-  test_long_double_utils();
+  test_common();
+  test_int();
+  test_long_double();
   UNITY_END();
   printf("All tests run successfully\n");
   return 0;
