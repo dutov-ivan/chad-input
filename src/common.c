@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "input.h"
+#include "input_internals.h"
 
 int display_error(const char *format, ...) {
   va_list args;
@@ -54,26 +55,6 @@ void replace_commas_with_dots(char *string) {
   }
 }
 
-int ask_repeat() {
-  char choice[3];
-  printf(
-      "Продовжити? Введіть '+' для продовження або будь-яку іншу клавішу, якщо "
-      "не погоджуєтесь: ");
-
-  if (!fgets(choice, sizeof(choice), stdin)) {
-    printf("Помилка читання вводу.\n");
-    return 1;
-  }
-
-  if (choice[0] == '+' && choice[1] == '\n') {
-    return SUCCESS;
-  }
-
-  clear_input();
-
-  return ERROR;
-}
-
 bool is_input_floating_point(char *str) {
   while (*str) {
     switch (*str) {
@@ -90,6 +71,30 @@ bool is_input_floating_point(char *str) {
   return false;
 }
 
+int display_error_input_outside_length(const char *name, int max_char_count) {
+  display_error("Довжина %s в символах має бути меншою за %d.\n", name,
+                max_char_count);
+  return PIPE;
+}
+
+int display_warning_not_precise(int max_significant_digits) {
+  display_warning(
+      "Кількість значущих цифр перевищує максимальну дозволену кількість цифр "
+      "%d. Розрахунки можуть бути неточними",
+      max_significant_digits);
+  return PIPE;
+}
+
+int display_error_not_number(const char *name) {
+  display_error("%s має бути числом і не містити додаткових символів!", name);
+  return PIPE;
+}
+
+bool is_input_within_length(const char *input) {
+  // Last character should be '\n' if input is withing length
+  return (input[strlen(input) - 1] == '\n');
+}
+
 bool is_input_precise(const char *input, int max_significant_digits) {
   int significant_digits = 0;
 
@@ -99,27 +104,17 @@ bool is_input_precise(const char *input, int max_significant_digits) {
     if (c >= '0' && c <= '9') {
       significant_digits++;
     }
-  }
 
-  if (significant_digits > max_significant_digits) {
-    display_warning(
-        "Ввід перевищує максимальну дозволену кількість значущих "
-        "цифр %d. Розрахунки можуть бути неточними",
-        max_significant_digits);
-    return false;
+    if (significant_digits > max_significant_digits) {
+      return false;
+    }
   }
 
   return true;
 }
 
-bool is_input_length_valid(char *input, int max_char_count, const char *name) {
-  if (input[strlen(input) - 1] != '\n') {
-    display_error("Довжина %s в символах має бути меншою за %d.\n", name,
-                  max_char_count);
-    clear_input();
-    return false;
-  }
-  return true;
+bool is_input_number_after_conversion(const char *endptr, const char *input) {
+  return (endptr == input || *endptr != '\n');
 }
 
 int read_input(char *input, int max_char_count, const char *name) {
@@ -128,4 +123,24 @@ int read_input(char *input, int max_char_count, const char *name) {
     return ERROR;
   }
   return SUCCESS;
+}
+
+int ask_repeat() {
+  char choice[3];
+  printf(
+      "Продовжити? Введіть '+' для продовження або будь-яку іншу клавішу, якщо "
+      "не погоджуєтесь: ");
+
+  if (!fgets(choice, sizeof(choice), stdin)) {
+    printf("Помилка читання вводу.\n");
+    return ERROR;
+  }
+
+  if (choice[0] == '+' && choice[1] == '\n') {
+    return SUCCESS;
+  }
+
+  clear_input();
+
+  return ERROR;
 }

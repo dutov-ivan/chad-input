@@ -4,7 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "input.h"
+#include "input_internals.h"
+#define TOLERANCE FLT_EPSILON
 
 void prompt_user_input_float(const char *name, int is_restricted,
                              float min_value, float max_value) {
@@ -40,16 +41,12 @@ float truncate_float(float num, int decimal_places) {
   return truncf(num * factor) / factor;
 }
 
-bool is_float_input_precise(const char *input) {
-  return is_input_precise(input, FLT_DIG);
-}
-
 void print_float_precise(float num, int decimal_places) {
   printf("%.*f", decimal_places, truncate_float(num, decimal_places));
 }
 
 bool is_float_flow(float *value, const char *name) {
-  return (fabsl(*value) < FLT_MIN || fabsl(*value) == FLT_MAX);
+  return (fabsf(*value) < FLT_MIN || fabsf(*value) == FLT_MAX);
 }
 
 bool is_float_input_valid(const char *input, float *value, const char *name) {
@@ -79,7 +76,9 @@ int read_float(float *value, const char *full_name, const char *short_name,
     return ERROR;
   }
 
-  if (!is_input_length_valid(input, max_char_count, full_name)) {
+  if (!is_input_within_length(input)) {
+    display_error_input_outside_length(full_name, max_char_count);
+    clear_input();
     return ERROR;
   }
 
@@ -95,7 +94,9 @@ int read_float(float *value, const char *full_name, const char *short_name,
     return ERROR;
   }
 
-  is_float_input_precise(input);
+  if (!is_input_precise(input, FLT_DIG)) {
+    display_error_not_precise(FLT_DIG);
+  }
 
   return SUCCESS;
 }

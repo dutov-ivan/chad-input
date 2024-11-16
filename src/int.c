@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "input.h"
+#include "input_internals.h"
 
 void prompt_user_input_int(const char *name, bool is_restricted, int min_value,
                            int max_value) {
@@ -74,7 +75,9 @@ int read_int(int *value, const char *full_name, const char *short_name,
     return ERROR;
   }
 
-  if (!is_input_length_valid(input, max_char_count, full_name)) {
+  if (!is_input_within_length(input)) {
+    display_error_input_outside_length(full_name, max_char_count);
+    clear_input();
     return ERROR;
   }
 

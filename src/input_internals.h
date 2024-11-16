@@ -1,5 +1,5 @@
-#ifndef INPUT_H
-#define INPUT_H
+#ifndef INPUT_INTERNALS_H
+#define INPUT_INTERNALS_H
 
 #include <stdbool.h>
 
@@ -11,40 +11,32 @@
 #define SUCCESS 0
 #define ERROR 1
 #define PIPE 1
-#define TOLERANCE 1e-7
 
-void clear_input();
-bool is_input_floating_point(char *str);
-int request_repeat();
+typedef enum {
+  GREATER_EQUAL,
+  GREATER,
+  LESS,
+  LESS_EQUAL,
+  WITHIN_RANGE
+} RangeCheckResult;
+
 int display_error(const char *format, ...)
     __attribute__((format(printf, 1, 2)));
 int display_warning(const char *format, ...)
     __attribute__((format(printf, 1, 2)));
 int display_success(const char *format, ...)
     __attribute__((format(printf, 1, 2)));
-
-long double truncate_long_double(long double num, int decimal_places);
-bool is_long_double_input_precise(const char *input);
-void print_long_double_precise(long double num, int decimal_places);
+int display_warning_not_precise(int max_significant_digits);
+int display_error_input_outside_length(const char *name, int max_char_count);
+int display_error_not_number(const char *name);
 
 void replace_commas_with_dots(char *string);
+
+bool is_input_floating_point(char *str);
 bool is_input_precise(const char *input, int max_significant_digits);
+bool is_input_within_length(const char *input);
+bool is_input_number_after_conversion(const char *endptr, const char *input);
 
-int read_int(int *value, const char *full_name, const char *short_name,
-             int max_char_count, bool is_restricted, int max_value,
-             int min_value, bool is_max_included, bool is_min_included);
-
-bool is_input_length_valid(char *input, int max_char_count, const char *name);
-int read_long_double(long double *value, const char *full_name,
-                     const char *short_name, int max_char_count,
-                     bool is_restricted, long double max_value,
-                     long double min_value, bool is_max_included,
-                     bool is_min_included);
-bool is_int_in_range(int *value, const char *name, int max_value, int min_value,
-                     bool is_max_included, bool is_min_included);
-
-bool is_long_double_in_range(long double *value, const char *name,
-                             long double max_value, long double min_value,
-                             bool is_max_included, bool is_min_included);
+void clear_input();
 int read_input(char *input, int max_char_count, const char *name);
 #endif

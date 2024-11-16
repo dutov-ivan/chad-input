@@ -5,6 +5,8 @@
 #include <stdlib.h>
 
 #include "input.h"
+#include "input_internals.h"
+#define TOLERANCE LDBL_EPSILON
 
 void prompt_user_input_long_double(const char *name, int is_restricted,
                                    long double min_value,
@@ -39,10 +41,6 @@ bool is_long_double_in_range(long double *value, const char *name,
 long double truncate_long_double(long double num, int decimal_places) {
   long double factor = powl(10, decimal_places);
   return truncl(num * factor) / factor;
-}
-
-bool is_long_double_input_precise(const char *input) {
-  return is_input_precise(input, LDBL_DIG);
 }
 
 void print_long_double_precise(long double num, int decimal_places) {
@@ -83,7 +81,9 @@ int read_long_double(long double *value, const char *full_name,
     return ERROR;
   }
 
-  if (!is_input_length_valid(input, max_char_count, full_name)) {
+  if (!is_input_within_length(input)) {
+    display_error_input_outside_length(full_name, max_char_count);
+    clear_input();
     return ERROR;
   }
 
@@ -99,7 +99,9 @@ int read_long_double(long double *value, const char *full_name,
     return ERROR;
   }
 
-  is_long_double_input_precise(input);
+  if (!is_input_precise(input, LDBL_DIG)) {
+    display_error_not_precise(LDBL_DIG);
+  }
 
   return SUCCESS;
 }
