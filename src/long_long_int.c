@@ -4,8 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "common.h"
 #include "input.h"
-#include "input_internals.h"
+#include "test.h"
+
+#define MAX_VALUE LLONG_MAX
+#define MIN_VALUE LLONG_MIN
 
 void prompt_user_input_long_long_int(const char *name, bool is_restricted,
                                      long long int min_value,
@@ -17,58 +21,51 @@ void prompt_user_input_long_long_int(const char *name, bool is_restricted,
   }
 }
 
-bool is_long_long_int_in_range(long long int *value, const char *name,
-                               long long int max_value, long long int min_value,
-                               bool is_max_included, bool is_min_included) {
-  if ((is_min_included && *value < min_value) ||
-      (!is_min_included && *value <= min_value)) {
-    display_error("%s має бути %s %lld", name,
-                  is_min_included ? "більший-рівний" : "більший за", min_value);
-    return false;
+void show_range_error_long_long_int(const char *name, RangeCheckResult result,
+                                    long long int min_value,
+                                    long long int max_value) {
+  switch (result) {
+    case LESS:
+      show_error("%s має бути більший-рівний %lld.\n", name, min_value);
+      break;
+    case LESS_EQUAL:
+      show_error("%s має бути більший за %lld.\n", name, min_value);
+      break;
+    case GREATER:
+      show_error("%s має бути менший-рівний %lld.\n", name, max_value);
+      break;
+    case GREATER_EQUAL:
+      show_error("%s має бути менший за %lld.\n", name, max_value);
+      break;
+    default:
+      break;
   }
-
-  if ((is_max_included && *value > max_value) ||
-      (!is_max_included && *value >= max_value)) {
-    display_error("%s має бути %s %lld", name,
-                  is_min_included ? "менший-рівний" : "менший за", min_value);
-    return false;
-  }
-
-  return true;
 }
 
-bool is_long_long_int_flow(long long int num) {
-  return (num < LLONG_MIN || num > LLONG_MAX);
+// Range Checking Functions
+RangeCheckResult validate_range_long_long_int(long long int value,
+                                              long long int min_value,
+                                              long long int max_value,
+                                              bool is_min_included,
+                                              bool is_max_included) {
+  if (is_min_included && value < min_value) return LESS;
+  if (!is_min_included && value <= min_value) return LESS_EQUAL;
+  if (is_max_included && value > max_value) return GREATER;
+  if (!is_max_included && value >= max_value) return GREATER_EQUAL;
+  return WITHIN_RANGE;
 }
 
-bool is_long_long_int_input_valid(char *input, long long int *value,
-                                  const char *name) {
-  if (is_input_floating_point(input)) {
-    display_error("%s має бути цілим числом.\n", name);
-    return false;
+RangeCheckResult validate_global_bounds_long_long_int(long long int value) {
+  if (errno == ERANGE) {
+    // Max and min are overflow values
+    if (value == MAX_VALUE) return GREATER;
+    if (value == MIN_VALUE) return LESS;
   }
 
-  char *endptr;
-  long temp_value = strtoll(input, &endptr, 10);
-
-  if (endptr == input || *endptr != '\n') {
-    display_error("%s має бути числом і не містити додаткових символів!\n",
-                  name);
-    return false;
-  }
-
-  if (errno == ERANGE && is_long_long_int_flow(temp_value)) {
-    display_error("%s має бути більшим за %d і меншим за %d!", name, LLONG_MIN,
-                  LLONG_MAX);
-    return false;
-  }
-
-  *value = temp_value;
-
-  return true;
+  return WITHIN_RANGE;
 }
 
-int read_long_long_int(long long int *value, const char *full_name,
+int read_long_long_int(int *value, const char *full_name,
                        const char *short_name, long long int max_char_count,
                        bool is_restricted, long long int max_value,
                        long long int min_value, bool is_max_included,
@@ -84,19 +81,34 @@ int read_long_long_int(long long int *value, const char *full_name,
   }
 
   if (!is_input_within_length(input)) {
-    display_error_input_outside_length(full_name, max_char_count);
+    show_error_overlength(full_name, max_char_count);
     clear_input();
     return ERROR;
   }
 
-  if (!is_long_long_int_input_valid(input, value, short_name)) {
+  char *endptr;
+  *value = strtoll(input, &endptr, 10);
+
+  if (!is_input_number_after_conversion(endptr, input)) {
+    show_error_NaN(full_name);
     return ERROR;
   }
 
-  if (is_restricted &&
-      !is_long_long_int_in_range(value, short_name, max_value, min_value,
-                                 is_max_included, is_min_included)) {
+  RangeCheckResult global_check = validate_global_bounds_long_long_int(*value);
+  if (global_check != WITHIN_RANGE) {
+    show_range_error_long_long_int(short_name, global_check, min_value,
+                                   max_value);
     return ERROR;
+  }
+
+  if (is_restricted) {
+    RangeCheckResult range_check = validate_range_long_long_int(
+        *value, min_value, max_value, is_min_included, is_max_included);
+    if (range_check != WITHIN_RANGE) {
+      show_range_error_long_long_int(full_name, range_check, min_value,
+                                     max_value);
+      return ERROR;
+    }
   }
 
   return SUCCESS;

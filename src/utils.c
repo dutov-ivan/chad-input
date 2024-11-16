@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "common.h"
 #include "input.h"
-#include "input_internals.h"
+#include "test.h"
 
-int display_error(const char *format, ...) {
+int show_error(const char *format, ...) {
   va_list args;
   va_start(args, format);
 
@@ -17,7 +18,7 @@ int display_error(const char *format, ...) {
   return PIPE;
 }
 
-int display_warning(const char *format, ...) {
+int show_warning(const char *format, ...) {
   va_list args;
   va_start(args, format);
 
@@ -29,7 +30,7 @@ int display_warning(const char *format, ...) {
   return PIPE;
 }
 
-int display_success(const char *format, ...) {
+int show_success(const char *format, ...) {
   va_list args;
   va_start(args, format);
 
@@ -71,22 +72,22 @@ bool is_input_floating_point(char *str) {
   return false;
 }
 
-int display_error_input_outside_length(const char *name, int max_char_count) {
-  display_error("Довжина %s в символах має бути меншою за %d.\n", name,
-                max_char_count);
+int show_error_overlength(const char *name, int max_char_count) {
+  show_error("Довжина %s в символах має бути меншою за %d.\n", name,
+             max_char_count);
   return PIPE;
 }
 
-int display_warning_not_precise(int max_significant_digits) {
-  display_warning(
+int show_warning_not_precise(int max_significant_digits) {
+  show_warning(
       "Кількість значущих цифр перевищує максимальну дозволену кількість цифр "
       "%d. Розрахунки можуть бути неточними",
       max_significant_digits);
   return PIPE;
 }
 
-int display_error_not_number(const char *name) {
-  display_error("%s має бути числом і не містити додаткових символів!", name);
+int show_error_not_number(const char *name) {
+  show_error("%s має бути числом і не містити додаткових символів!", name);
   return PIPE;
 }
 
@@ -119,7 +120,7 @@ bool is_input_number_after_conversion(const char *endptr, const char *input) {
 
 int read_input(char *input, int max_char_count, const char *name) {
   if (!fgets(input, max_char_count + 2, stdin)) {
-    display_error("Не вдалося прочитати ввід для %s.\n", name);
+    show_error("Не вдалося прочитати ввід для %s.\n", name);
     return ERROR;
   }
   return SUCCESS;

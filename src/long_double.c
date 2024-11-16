@@ -1,106 +1,130 @@
-#include <errno.h>
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "common.h"
 #include "input.h"
-#include "input_internals.h"
-#define TOLERANCE LDBL_EPSILON
+#include "test.h"
 
-void prompt_user_input_long_double(const char *name, int is_restricted,
-                                   long double min_value,
-                                   long double max_value) {
-  if (is_restricted == 1) {
+#define TOLERANCE LDBL_EPSILON
+#define MIN_ABSOLUTE_VALUE LDBL_MIN
+#define MAX_ABSOLUTE_VALUE LDBL_MAX
+#define OVERFLOW_ABSOLUTE_VALUE HUGE_VALL
+#define MAX_SIGNIFICANT_DIGITS LDBL_DIG
+
+// Show Functions
+void prompt_user_for_long_double(const char *name, bool is_restricted,
+                                 long double min_value, long double max_value) {
+  if (is_restricted) {
     printf("Введіть %s (від %Lg до %Lg): ", name, min_value, max_value);
   } else {
     printf("Введіть %s: ", name);
   }
 }
 
-bool is_long_double_in_range(long double *value, const char *name,
-                             long double max_value, long double min_value,
-                             bool is_max_included, bool is_min_included) {
-  if ((is_min_included && *value < min_value - TOLERANCE) ||
-      (!is_min_included && *value <= min_value + TOLERANCE)) {
-    display_error("%s має бути %s %Lg", name,
-                  is_min_included ? "більший-рівний" : "більший за", min_value);
-    return false;
+void show_range_error_long_double(const char *name, RangeCheckResult result,
+                                  long double min_value,
+                                  long double max_value) {
+  switch (result) {
+    case LESS:
+      show_error("%s має бути більший-рівний %Lg.\n", name, min_value);
+      break;
+    case LESS_EQUAL:
+      show_error("%s має бути більший за %Lg.\n", name, min_value);
+      break;
+    case GREATER:
+      show_error("%s має бути менший-рівний %Lg.\n", name, max_value);
+      break;
+    case GREATER_EQUAL:
+      show_error("%s має бути менший за %Lg.\n", name, max_value);
+      break;
+    default:
+      break;
   }
-
-  if ((is_max_included && *value > max_value + TOLERANCE) ||
-      (!is_max_included && *value >= max_value - TOLERANCE)) {
-    display_error("%s має бути %s %Lg", name,
-                  is_min_included ? "менший-рівний" : "менший за", min_value);
-    return false;
-  }
-
-  return true;
 }
 
-long double truncate_long_double(long double num, int decimal_places) {
+// Range Checking Functions
+RangeCheckResult validate_range_long_double(long double value,
+                                            long double min_value,
+                                            long double max_value,
+                                            bool is_min_included,
+                                            bool is_max_included) {
+  if (is_min_included && value < min_value - TOLERANCE) return LESS;
+  if (!is_min_included && value <= min_value + TOLERANCE) return LESS_EQUAL;
+  if (is_max_included && value > max_value + TOLERANCE) return GREATER;
+  if (!is_max_included && value >= max_value - TOLERANCE) return GREATER_EQUAL;
+  return WITHIN_RANGE;
+}
+
+RangeCheckResult validate_global_bounds_long_double(long double value) {
+  if (fabsl(value) == OVERFLOW_ABSOLUTE_VALUE) return GREATER_EQUAL;
+  if (fabsl(value) < MIN_ABSOLUTE_VALUE) return LESS_EQUAL;
+  return WITHIN_RANGE;
+}
+
+// Utility Functions
+long double truncate_to_precision_long_double(long double num,
+                                              int decimal_places) {
   long double factor = powl(10, decimal_places);
   return truncl(num * factor) / factor;
 }
 
-void print_long_double_precise(long double num, int decimal_places) {
-  printf("%.*Lf", decimal_places, truncate_long_double(num, decimal_places));
+void print_truncated_long_double(long double num, int decimal_places) {
+  printf("%.*Lf", decimal_places,
+         truncate_to_precision_long_double(num, decimal_places));
 }
 
-bool is_long_double_flow(long double *value, const char *name) {
-  return (fabsl(*value) < LDBL_MIN || fabsl(*value) == HUGE_VALL);
-}
-
-bool is_long_double_input_valid(const char *input, long double *value,
-                                const char *name) {
-  char *endptr;
-  *value = strtold(input, &endptr);
-
-  if (endptr == input || *endptr != '\n') {
-    display_error("%s має бути числом і не містити додаткових символів!", name);
-    return false;
-  }
-
-  if (errno == ERANGE && is_long_double_flow(value, name) == ERROR) {
-    display_error("Повинно бути %Lg < %s < %Lg або %Lg < %s < %Lg", -HUGE_VALL,
-                  name, -LDBL_MIN, LDBL_MIN, name, HUGE_VALL);
-    return false;
-  }
-  return true;
-}
-
+// Main Read Function
 int read_long_double(long double *value, const char *full_name,
                      const char *short_name, int max_char_count,
                      bool is_restricted, long double max_value,
                      long double min_value, bool is_max_included,
                      bool is_min_included) {
   char input[max_char_count + 2];
-  errno = 0;
+
+  prompt_user_for_long_double(full_name, is_restricted, min_value, max_value);
 
   if (read_input(input, max_char_count, full_name) == ERROR) {
     return ERROR;
   }
 
   if (!is_input_within_length(input)) {
-    display_error_input_outside_length(full_name, max_char_count);
+    show_error_overlength(full_name, max_char_count);
     clear_input();
     return ERROR;
   }
 
   replace_commas_with_dots(input);
 
-  if (!is_long_double_input_valid(input, value, full_name)) {
+  // Parse value
+  char *endptr;
+  *value = strtod(input, &endptr);
+
+  if (!is_input_number_after_conversion(endptr, input)) {
+    show_error_NaN(full_name);
     return ERROR;
   }
 
-  if (is_restricted &&
-      !is_long_double_in_range(value, short_name, max_value, min_value,
-                               is_max_included, is_min_included) == ERROR) {
+  RangeCheckResult global_check = validate_global_bounds_long_double(*value);
+  if (global_check != WITHIN_RANGE) {
+    show_range_error_long_double(short_name, global_check, min_value,
+                                 max_value);
     return ERROR;
   }
 
-  if (!is_input_precise(input, LDBL_DIG)) {
-    display_error_not_precise(LDBL_DIG);
+  if (is_restricted) {
+    RangeCheckResult range_check = validate_range_long_double(
+        *value, min_value, max_value, is_min_included, is_max_included);
+    if (range_check != WITHIN_RANGE) {
+      show_range_error_long_double(full_name, range_check, min_value,
+                                   max_value);
+      return ERROR;
+    }
+  }
+
+  if (!is_input_precise(input, MAX_SIGNIFICANT_DIGITS)) {
+    show_warning_not_precise(MAX_SIGNIFICANT_DIGITS);
   }
 
   return SUCCESS;

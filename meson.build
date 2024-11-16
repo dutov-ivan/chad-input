@@ -7,7 +7,7 @@ inc_dirs = include_directories('.', 'unity/src', 'src')
 # Test program sources
 test_sources = [
   # Input 
-  'src/common.c',
+  'src/utils.c',
   'src/int.c',
   'src/long_int.c',
   'src/long_long_int.c',

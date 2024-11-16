@@ -20,15 +20,12 @@ typedef enum {
   WITHIN_RANGE
 } RangeCheckResult;
 
-int display_error(const char *format, ...)
-    __attribute__((format(printf, 1, 2)));
-int display_warning(const char *format, ...)
-    __attribute__((format(printf, 1, 2)));
-int display_success(const char *format, ...)
-    __attribute__((format(printf, 1, 2)));
-int display_warning_not_precise(int max_significant_digits);
-int display_error_input_outside_length(const char *name, int max_char_count);
-int display_error_not_number(const char *name);
+int show_error(const char *format, ...) __attribute__((format(printf, 1, 2)));
+int show_warning(const char *format, ...) __attribute__((format(printf, 1, 2)));
+int show_success(const char *format, ...) __attribute__((format(printf, 1, 2)));
+int show_warning_not_precise(int max_significant_digits);
+int show_error_overlength(const char *name, int max_char_count);
+int show_error_NaN(const char *name);
 
 void replace_commas_with_dots(char *string);
 

@@ -1,4 +1,4 @@
-#include "../src/input.h"
+#include "../src/input_internals.h"
 #include "../unity/src/unity.h"
 #include "test.h"
 
