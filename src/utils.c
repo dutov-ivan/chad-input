@@ -42,6 +42,20 @@ int show_success(const char *format, ...) {
   return PIPE;
 }
 
+int show_error_overlength(const char *name, int max_char_count) {
+  show_error("Довжина %s в символах має бути меншою за %d.\n", name,
+             max_char_count);
+  return PIPE;
+}
+
+int show_warning_not_precise(int max_significant_digits) {
+  show_warning(
+      "Кількість значущих цифр перевищує максимальну дозволену кількість цифр "
+      "%d. Розрахунки можуть бути неточними",
+      max_significant_digits);
+  return PIPE;
+}
+
 void clear_input() {
   int c;
   while ((c = getchar()) != '\n' && c != EOF);
@@ -70,20 +84,6 @@ bool is_input_floating_point(char *str) {
     str++;
   }
   return false;
-}
-
-int show_error_overlength(const char *name, int max_char_count) {
-  show_error("Довжина %s в символах має бути меншою за %d.\n", name,
-             max_char_count);
-  return PIPE;
-}
-
-int show_warning_not_precise(int max_significant_digits) {
-  show_warning(
-      "Кількість значущих цифр перевищує максимальну дозволену кількість цифр "
-      "%d. Розрахунки можуть бути неточними",
-      max_significant_digits);
-  return PIPE;
 }
 
 int show_error_not_number(const char *name) {

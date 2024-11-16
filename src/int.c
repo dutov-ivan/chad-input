@@ -50,7 +50,7 @@ RangeCheckResult validate_range_int(int value, int min_value, int max_value,
   return WITHIN_RANGE;
 }
 
-RangeCheckResult validate_global_bounds_int(long int value) {
+RangeCheckResult validate_overflow_int(long int value) {
   if (value > MAX_VALUE) return GREATER;
   if (value < MIN_VALUE) return LESS;
   return WITHIN_RANGE;
@@ -77,11 +77,11 @@ int read_int(int *value, const char *full_name, const char *short_name,
   long int temp_value = strtol(input, &endptr, 10);
 
   if (!is_input_number_after_conversion(endptr, input)) {
-    show_error_NaN(full_name);
+    show_error_not_number(full_name);
     return ERROR;
   }
 
-  RangeCheckResult global_check = validate_global_bounds_int(temp_value);
+  RangeCheckResult global_check = validate_overflow_int(temp_value);
   if (global_check != WITHIN_RANGE) {
     show_range_error_int(short_name, global_check, min_value, max_value);
     return ERROR;

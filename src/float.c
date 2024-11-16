@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "common.h"
+#include "errno.h"
 #include "input.h"
 #include "test.h"
 
@@ -54,9 +55,11 @@ RangeCheckResult validate_range_float(float value, float min_value,
   return WITHIN_RANGE;
 }
 
-RangeCheckResult validate_global_bounds_float(float value) {
-  if (fabsf(value) == OVERFLOW_ABSOLUTE_VALUE) return GREATER_EQUAL;
-  if (fabsf(value) < MIN_ABSOLUTE_VALUE) return LESS_EQUAL;
+RangeCheckResult validate_overflow_float(float value) {
+  if (errno == ERANGE) {
+    if (fabsf(value) == OVERFLOW_ABSOLUTE_VALUE) return GREATER_EQUAL;
+    if (fabsf(value) < MIN_ABSOLUTE_VALUE) return LESS_EQUAL;
+  }
   return WITHIN_RANGE;
 }
 
@@ -76,6 +79,7 @@ int read_float(float *value, const char *full_name, const char *short_name,
                int max_char_count, bool is_restricted, float max_value,
                float min_value, bool is_max_included, bool is_min_included) {
   char input[max_char_count + 2];
+  errno = 0;
 
   prompt_user_for_float(full_name, is_restricted, min_value, max_value);
 
@@ -96,11 +100,11 @@ int read_float(float *value, const char *full_name, const char *short_name,
   *value = strtof(input, &endptr);
 
   if (!is_input_number_after_conversion(endptr, input)) {
-    show_error_NaN(full_name);
+    show_error_not_number(full_name);
     return ERROR;
   }
 
-  RangeCheckResult global_check = validate_global_bounds_float(*value);
+  RangeCheckResult global_check = validate_overflow_float(*value);
   if (global_check != WITHIN_RANGE) {
     show_range_error_float(short_name, global_check, min_value, max_value);
     return ERROR;

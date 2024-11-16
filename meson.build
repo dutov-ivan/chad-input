@@ -16,13 +16,13 @@ test_sources = [
   'src/long_double.c',
 
   # Input tests 
-  'test/test_common.c',
-  'test/test_int.c',
-  'test/test_long_int.c',
-  'test/test_long_long_int.c',
-  'test/test_float.c',
-  'test/test_double.c',
-  'test/test_long_double.c',
+  'test/test_input_checks.c',
+  'test/test_read_input.c',
+  'test/test_show_range.c',
+  'test/test_truncation.c',
+  'test/test_utils.c',
+  'test/test_validate_overflow.c',
+  'test/test_validate_range.c',
 
   # Testing library import
   'test/test.c',

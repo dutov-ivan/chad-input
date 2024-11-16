@@ -1,5 +1,5 @@
-#ifndef INPUT_INTERNALS_H
-#define INPUT_INTERNALS_H
+#ifndef COMMON_H
+#define COMMON_H
 
 #include <stdbool.h>
 
@@ -25,6 +25,7 @@ int show_warning(const char *format, ...) __attribute__((format(printf, 1, 2)));
 int show_success(const char *format, ...) __attribute__((format(printf, 1, 2)));
 int show_warning_not_precise(int max_significant_digits);
 int show_error_overlength(const char *name, int max_char_count);
+int show_error_not_number(const char *name);
 int show_error_NaN(const char *name);
 
 void replace_commas_with_dots(char *string);

@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
@@ -57,9 +58,11 @@ RangeCheckResult validate_range_long_double(long double value,
   return WITHIN_RANGE;
 }
 
-RangeCheckResult validate_global_bounds_long_double(long double value) {
-  if (fabsl(value) == OVERFLOW_ABSOLUTE_VALUE) return GREATER_EQUAL;
-  if (fabsl(value) < MIN_ABSOLUTE_VALUE) return LESS_EQUAL;
+RangeCheckResult validate_overflow_long_double(long double value) {
+  if (errno == ERANGE) {
+    if (fabsl(value) == OVERFLOW_ABSOLUTE_VALUE) return GREATER_EQUAL;
+    if (fabsl(value) < MIN_ABSOLUTE_VALUE) return LESS_EQUAL;
+  }
   return WITHIN_RANGE;
 }
 
@@ -82,6 +85,7 @@ int read_long_double(long double *value, const char *full_name,
                      long double min_value, bool is_max_included,
                      bool is_min_included) {
   char input[max_char_count + 2];
+  errno = 0;
 
   prompt_user_for_long_double(full_name, is_restricted, min_value, max_value);
 
@@ -102,11 +106,11 @@ int read_long_double(long double *value, const char *full_name,
   *value = strtod(input, &endptr);
 
   if (!is_input_number_after_conversion(endptr, input)) {
-    show_error_NaN(full_name);
+    show_error_not_number(full_name);
     return ERROR;
   }
 
-  RangeCheckResult global_check = validate_global_bounds_long_double(*value);
+  RangeCheckResult global_check = validate_overflow_long_double(*value);
   if (global_check != WITHIN_RANGE) {
     show_range_error_long_double(short_name, global_check, min_value,
                                  max_value);
