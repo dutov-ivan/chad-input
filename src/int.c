@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -50,7 +51,7 @@ bool is_int_input_valid(char *input, int *value, const char *name) {
     return false;
   }
 
-  if (is_int_flow(temp_value)) {
+  if (errno == ERANGE && is_int_flow(temp_value)) {
     display_error("%s має бути більшим за %d і меншим за %d!", name, INT_MIN,
                   INT_MAX);
     return false;
@@ -62,11 +63,12 @@ bool is_int_input_valid(char *input, int *value, const char *name) {
 }
 
 int read_int(int *value, const char *full_name, const char *short_name,
-             int max_char_count, int is_restricted, int max_value,
-             int min_value, int is_max_included, int is_min_included) {
+             int max_char_count, bool is_restricted, int max_value,
+             int min_value, bool is_max_included, bool is_min_included) {
   prompt_user_input_int(full_name, is_restricted, min_value, max_value);
 
   char input[max_char_count + 2];
+  errno = 0;
 
   if (read_input(input, max_char_count, full_name) == ERROR) {
     return ERROR;

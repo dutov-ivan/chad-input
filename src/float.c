@@ -54,7 +54,7 @@ bool is_float_flow(float *value, const char *name) {
 
 bool is_float_input_valid(const char *input, float *value, const char *name) {
   char *endptr;
-  *value = strtold(input, &endptr);
+  *value = strtof(input, &endptr);
 
   if (endptr == input || *endptr != '\n') {
     display_error("%s має бути числом і не містити додаткових символів!", name);
@@ -62,8 +62,8 @@ bool is_float_input_valid(const char *input, float *value, const char *name) {
   }
 
   if (errno == ERANGE && is_float_flow(value, name) == ERROR) {
-    display_error("Повинно бути %g < %s < %g або %g < %s < %g", -FLT_MAX, name,
-                  -FLT_MIN, FLT_MIN, name, FLT_MAX);
+    display_error("Повинно бути %g < %s < %g або %g < %s < %g", -HUGE_VALF,
+                  name, -FLT_MIN, FLT_MIN, name, HUGE_VALF);
     return false;
   }
   return true;
