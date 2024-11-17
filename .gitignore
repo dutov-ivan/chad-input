@@ -113,3 +113,6 @@ tags
 [._]*.un~
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,vim,meson,c
+.cache/
+test_fail.txt
+test_input.txt
