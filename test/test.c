@@ -18,7 +18,7 @@ int main() {
   test_overflow();
   test_range();
   test_read();
-  // test_truncate();
+  test_truncate();
   UNITY_END();
   printf("All tests run successfully\n");
   return 0;

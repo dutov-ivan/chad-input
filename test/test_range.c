@@ -1,3 +1,5 @@
+#include <float.h>
+
 #include "../src/test.h"
 #include "../unity/src/unity.h"
 #include "test.h"
@@ -200,6 +202,190 @@ void test_validate_range_long_long_int_within_range() {
                                       is_min_included, is_max_included));
 }
 
+// Test cases
+void test_validate_range_float_within_range() {
+  float value = 5.0f;
+  float min_value = 3.0f;
+  float max_value = 7.0f;
+  RangeCheckResult result =
+      validate_range_float(value, min_value, max_value, true, true);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_range_float_less_than_min() {
+  float value = 2.9f;  // Slightly less than the min_value (3.0f) with TOLERANCE
+  float min_value = 3.0f;
+  float max_value = 7.0f;
+  RangeCheckResult result =
+      validate_range_float(value, min_value, max_value, true, true);
+  TEST_ASSERT_EQUAL(LESS, result);
+}
+
+void test_validate_range_float_greater_than_max() {
+  float value = 7.1f;  // Slightly more than the max_value (7.0f) with TOLERANCE
+  float min_value = 3.0f;
+  float max_value = 7.0f;
+  RangeCheckResult result =
+      validate_range_float(value, min_value, max_value, true, true);
+  TEST_ASSERT_EQUAL(GREATER, result);
+}
+
+void test_validate_range_float_less_equal_min_not_included() {
+  float value = 3.0f;  // Equal to min_value, but min is not included
+  float min_value = 3.0f;
+  float max_value = 7.0f;
+  RangeCheckResult result =
+      validate_range_float(value, min_value, max_value, false, true);
+  TEST_ASSERT_EQUAL(LESS_EQUAL, result);
+}
+
+void test_validate_range_float_greater_equal_max_not_included() {
+  float value = 7.0f;  // Equal to max_value, but max is not included
+  float min_value = 3.0f;
+  float max_value = 7.0f;
+  RangeCheckResult result =
+      validate_range_float(value, min_value, max_value, true, false);
+  TEST_ASSERT_EQUAL(GREATER_EQUAL, result);
+}
+
+void test_validate_range_float_edge_case_min_included() {
+  float value = 3.0f;  // Exactly at min_value, included
+  float min_value = 3.0f;
+  float max_value = 7.0f;
+  RangeCheckResult result =
+      validate_range_float(value, min_value, max_value, true, true);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_range_float_edge_case_max_included() {
+  float value = 7.0f;  // Exactly at max_value, included
+  float min_value = 3.0f;
+  float max_value = 7.0f;
+  RangeCheckResult result =
+      validate_range_float(value, min_value, max_value, true, true);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_range_float_tolerance_edge() {
+  float value = 3.0f + FLT_EPSILON;  // Slightly above min_value with tolerance
+  float min_value = 3.0f;
+  float max_value = 7.0f;
+  RangeCheckResult result =
+      validate_range_float(value, min_value, max_value, true, true);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_range_float_tolerance_below_max() {
+  float value = 7.0f - FLT_EPSILON;  // Slightly below max_value with tolerance
+  float min_value = 3.0f;
+  float max_value = 7.0f;
+  RangeCheckResult result =
+      validate_range_float(value, min_value, max_value, true, true);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+// DOUBLE
+
+void test_validate_range_double_within_range(void) {
+  RangeCheckResult result = validate_range_double(15.5, 10.0, 20.0, true, true);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_range_double_below_min_inclusive(void) {
+  RangeCheckResult result = validate_range_double(9.9, 10.0, 20.0, true, true);
+  TEST_ASSERT_EQUAL(LESS, result);
+}
+
+void test_validate_range_double_below_min_exclusive(void) {
+  RangeCheckResult result =
+      validate_range_double(10.0, 10.0, 20.0, false, true);
+  TEST_ASSERT_EQUAL(LESS_EQUAL, result);
+}
+
+void test_validate_range_double_above_max_inclusive(void) {
+  RangeCheckResult result = validate_range_double(20.1, 10.0, 20.0, true, true);
+  TEST_ASSERT_EQUAL(GREATER, result);
+}
+
+void test_validate_range_double_above_max_exclusive(void) {
+  RangeCheckResult result =
+      validate_range_double(20.0, 10.0, 20.0, true, false);
+  TEST_ASSERT_EQUAL(GREATER_EQUAL, result);
+}
+
+void test_validate_range_double_on_min_inclusive(void) {
+  RangeCheckResult result = validate_range_double(10.0, 10.0, 20.0, true, true);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_range_double_on_max_inclusive(void) {
+  RangeCheckResult result = validate_range_double(20.0, 10.0, 20.0, true, true);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_range_double_on_min_exclusive(void) {
+  RangeCheckResult result =
+      validate_range_double(10.0, 10.0, 20.0, false, true);
+  TEST_ASSERT_EQUAL(LESS_EQUAL, result);
+}
+
+void test_validate_range_double_on_max_exclusive(void) {
+  RangeCheckResult result =
+      validate_range_double(20.0, 10.0, 20.0, true, false);
+  TEST_ASSERT_EQUAL(GREATER_EQUAL, result);
+}
+
+// LONG DOUBLE
+
+void test_validate_range_long_double_within_range(void) {
+  long double value = 5.0L, min_value = 1.0L, max_value = 10.0L;
+  RangeCheckResult result =
+      validate_range_long_double(value, min_value, max_value, true, true);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_range_long_double_less_than_min_inclusive(void) {
+  long double value = 0.999L, min_value = 1.0L, max_value = 10.0L;
+  RangeCheckResult result =
+      validate_range_long_double(value, min_value, max_value, true, true);
+  TEST_ASSERT_EQUAL(LESS, result);
+}
+
+void test_validate_range_long_double_equal_to_min_inclusive(void) {
+  long double value = 1.0L, min_value = 1.0L, max_value = 10.0L;
+  RangeCheckResult result =
+      validate_range_long_double(value, min_value, max_value, true, true);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_range_long_double_equal_to_min_exclusive(void) {
+  long double value = 1.0L, min_value = 1.0L, max_value = 10.0L;
+  RangeCheckResult result =
+      validate_range_long_double(value, min_value, max_value, false, true);
+  TEST_ASSERT_EQUAL(LESS_EQUAL, result);
+}
+
+void test_validate_range_long_double_greater_than_max_inclusive(void) {
+  long double value = 10.001L, min_value = 1.0L, max_value = 10.0L;
+  RangeCheckResult result =
+      validate_range_long_double(value, min_value, max_value, true, true);
+  TEST_ASSERT_EQUAL(GREATER, result);
+}
+
+void test_validate_range_long_double_equal_to_max_inclusive(void) {
+  long double value = 10.0L, min_value = 1.0L, max_value = 10.0L;
+  RangeCheckResult result =
+      validate_range_long_double(value, min_value, max_value, true, true);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_range_long_double_equal_to_max_exclusive(void) {
+  long double value = 10.0L, min_value = 1.0L, max_value = 10.0L;
+  RangeCheckResult result =
+      validate_range_long_double(value, min_value, max_value, true, false);
+  TEST_ASSERT_EQUAL(GREATER_EQUAL, result);
+}
+
 void test_range() {
   RUN_TEST(test_validate_range_int_within_range_inclusive);
   RUN_TEST(test_validate_range_int_within_range_exclusive);
@@ -228,4 +414,32 @@ void test_range() {
   RUN_TEST(test_validate_range_long_long_int_greater_than_max);
   RUN_TEST(test_validate_range_long_long_int_equal_to_max);
   RUN_TEST(test_validate_range_long_long_int_within_range);
+
+  RUN_TEST(test_validate_range_float_within_range);
+  RUN_TEST(test_validate_range_float_less_than_min);
+  RUN_TEST(test_validate_range_float_greater_than_max);
+  RUN_TEST(test_validate_range_float_less_equal_min_not_included);
+  RUN_TEST(test_validate_range_float_greater_equal_max_not_included);
+  RUN_TEST(test_validate_range_float_edge_case_min_included);
+  RUN_TEST(test_validate_range_float_edge_case_max_included);
+  RUN_TEST(test_validate_range_float_tolerance_edge);
+  RUN_TEST(test_validate_range_float_tolerance_below_max);
+
+  RUN_TEST(test_validate_range_double_within_range);
+  RUN_TEST(test_validate_range_double_below_min_inclusive);
+  RUN_TEST(test_validate_range_double_below_min_exclusive);
+  RUN_TEST(test_validate_range_double_above_max_inclusive);
+  RUN_TEST(test_validate_range_double_above_max_exclusive);
+  RUN_TEST(test_validate_range_double_on_min_inclusive);
+  RUN_TEST(test_validate_range_double_on_max_inclusive);
+  RUN_TEST(test_validate_range_double_on_min_exclusive);
+  RUN_TEST(test_validate_range_double_on_max_exclusive);
+
+  RUN_TEST(test_validate_range_long_double_within_range);
+  RUN_TEST(test_validate_range_long_double_less_than_min_inclusive);
+  RUN_TEST(test_validate_range_long_double_equal_to_min_inclusive);
+  RUN_TEST(test_validate_range_long_double_equal_to_min_exclusive);
+  RUN_TEST(test_validate_range_long_double_greater_than_max_inclusive);
+  RUN_TEST(test_validate_range_long_double_equal_to_max_inclusive);
+  RUN_TEST(test_validate_range_long_double_equal_to_max_exclusive);
 }

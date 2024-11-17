@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <float.h>
 
 #include "../src/test.h"
 #include "../unity/src/unity.h"
@@ -94,6 +95,123 @@ void test_validate_overflow_long_long_int_no_errno() {
   TEST_ASSERT_EQUAL(WITHIN_RANGE, validate_overflow_long_long_int(value));
 }
 
+void test_validate_overflow_float_within_range() {
+  float value = 10.0f;
+  errno = 0;  // Reset errno
+  RangeCheckResult result = validate_overflow_float(value);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_overflow_float_greater_equal_on_overflow() {
+  float value = HUGE_VALF;  // Value representing an overflow
+  errno = ERANGE;           // Set errno to simulate overflow
+  RangeCheckResult result = validate_overflow_float(value);
+  TEST_ASSERT_EQUAL(GREATER_EQUAL, result);
+}
+
+void test_validate_overflow_float_less_equal_on_underflow() {
+  float value =
+      FLT_MIN / 2.0f;  // Value less than FLT_MIN to simulate underflow
+  errno = ERANGE;      // Set errno to simulate underflow
+  RangeCheckResult result = validate_overflow_float(value);
+  TEST_ASSERT_EQUAL(LESS_EQUAL, result);
+}
+
+void test_validate_overflow_float_no_error() {
+  float value = 0.0f;
+  errno = 0;  // No error
+  RangeCheckResult result = validate_overflow_float(value);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_overflow_float_error_without_overflow_or_underflow() {
+  float value = FLT_MIN;  // Valid float greater than FLT_MIN, no overflow
+  errno = ERANGE;         // Set errno to simulate error state
+  RangeCheckResult result = validate_overflow_float(value);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_overflow_float_edge_case_huge_valf() {
+  float value = HUGE_VALF;  // Exactly the overflow value
+  errno = ERANGE;           // Set errno to simulate overflow
+  RangeCheckResult result = validate_overflow_float(value);
+  TEST_ASSERT_EQUAL(GREATER_EQUAL, result);
+}
+
+void test_validate_overflow_float_edge_case_min_underflow() {
+  float value = FLT_MIN / 10.0f;  // Small value smaller than FLT_MIN
+  errno = ERANGE;                 // Set errno to simulate underflow
+  RangeCheckResult result = validate_overflow_float(value);
+  TEST_ASSERT_EQUAL(LESS_EQUAL, result);
+}
+
+void test_validate_overflow_float_no_errno() {
+  float value = 1.0f;
+  errno = 0;  // No error, simulate normal behavior
+  RangeCheckResult result = validate_overflow_float(value);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+// DOUBLE
+void test_validate_overflow_double_no_error(void) {
+  errno = 0;
+  double value = 1.0;
+  RangeCheckResult result = validate_overflow_double(value);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
+void test_validate_overflow_double_greater_equal(void) {
+  errno = ERANGE;
+  double value = HUGE_VAL;
+  RangeCheckResult result = validate_overflow_double(value);
+  TEST_ASSERT_EQUAL(GREATER_EQUAL, result);
+}
+
+void test_validate_overflow_double_less_equal(void) {
+  errno = ERANGE;
+  double value = DBL_MIN / 10;  // Simulate a very small underflowed value
+  RangeCheckResult result = validate_overflow_double(value);
+  TEST_ASSERT_EQUAL(LESS_EQUAL, result);
+}
+
+void test_validate_overflow_double_negative_greater_equal(void) {
+  errno = ERANGE;
+  double value = -HUGE_VAL;
+  RangeCheckResult result = validate_overflow_double(value);
+  TEST_ASSERT_EQUAL(GREATER_EQUAL, result);
+}
+
+void test_validate_overflow_double_negative_less_equal(void) {
+  errno = ERANGE;
+  double value =
+      -DBL_MIN / 10;  // Simulate a very small negative underflowed value
+  RangeCheckResult result = validate_overflow_double(value);
+  TEST_ASSERT_EQUAL(LESS_EQUAL, result);
+}
+
+// LONG DOUBLE
+
+void test_validate_overflow_long_double_greater_equal(void) {
+  errno = ERANGE;
+  long double value = HUGE_VALL;
+  RangeCheckResult result = validate_overflow_long_double(value);
+  TEST_ASSERT_EQUAL(GREATER_EQUAL, result);
+}
+
+void test_validate_overflow_long_double_less_equal(void) {
+  errno = ERANGE;
+  long double value = LDBL_MIN / 2;
+  RangeCheckResult result = validate_overflow_long_double(value);
+  TEST_ASSERT_EQUAL(LESS_EQUAL, result);
+}
+
+void test_validate_overflow_long_double_within_range(void) {
+  errno = 0;
+  long double value = 1.0L;
+  RangeCheckResult result = validate_overflow_long_double(value);
+  TEST_ASSERT_EQUAL(WITHIN_RANGE, result);
+}
+
 void test_overflow() {
   RUN_TEST(test_validate_overflow_int_within_range);
   RUN_TEST(test_validate_overflow_int_above_max);
@@ -109,4 +227,23 @@ void test_overflow() {
   RUN_TEST(test_validate_overflow_long_long_int_overflow_less);
   RUN_TEST(test_validate_overflow_long_long_int_no_overflow_but_errno);
   RUN_TEST(test_validate_overflow_long_long_int_no_errno);
+
+  RUN_TEST(test_validate_overflow_float_within_range);
+  RUN_TEST(test_validate_overflow_float_greater_equal_on_overflow);
+  RUN_TEST(test_validate_overflow_float_less_equal_on_underflow);
+  RUN_TEST(test_validate_overflow_float_no_error);
+  RUN_TEST(test_validate_overflow_float_error_without_overflow_or_underflow);
+  RUN_TEST(test_validate_overflow_float_edge_case_huge_valf);
+  RUN_TEST(test_validate_overflow_float_edge_case_min_underflow);
+  RUN_TEST(test_validate_overflow_float_no_errno);
+
+  RUN_TEST(test_validate_overflow_double_no_error);
+  RUN_TEST(test_validate_overflow_double_greater_equal);
+  RUN_TEST(test_validate_overflow_double_less_equal);
+  RUN_TEST(test_validate_overflow_double_negative_greater_equal);
+  RUN_TEST(test_validate_overflow_double_negative_less_equal);
+
+  RUN_TEST(test_validate_overflow_long_double_greater_equal);
+  RUN_TEST(test_validate_overflow_long_double_less_equal);
+  RUN_TEST(test_validate_overflow_long_double_within_range);
 }

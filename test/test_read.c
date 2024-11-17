@@ -1,3 +1,5 @@
+#include <float.h>
+
 #include "../src/test.h"
 #include "../unity/src/unity.h"
 #include "test.h"
@@ -286,6 +288,245 @@ void test_read_long_long_int_value_outside_inclusive_range() {
                     result);  // Expect failure because 5 is outside the range
 }
 
+void test_read_float_valid_input_within_range(void) {
+  float value;
+  simulate_stdin("15.2\n");
+
+  int result = read_float(&value, "Test Value", "Test", 10, true, 20.0, 10.0,
+                          true, true);
+
+  TEST_ASSERT_EQUAL_FLOAT(15.2, value);
+  TEST_ASSERT_EQUAL_INT(SUCCESS, result);
+}
+
+void test_read_float_invalid_input_not_a_number(void) {
+  float value;
+  simulate_stdin("abc\n");
+
+  int result = read_float(&value, "Test Value", "Test", 10, true, 20.0, 10.0,
+                          true, true);
+
+  TEST_ASSERT_EQUAL_INT(ERROR, result);
+}
+
+void test_read_float_invalid_input_overflow(void) {
+  float value;
+  simulate_stdin("1e1000\n");  // Large number causing overflow
+
+  int result = read_float(&value, "Test Value", "Test", 10, true, 1000.0, 0.0,
+                          true, true);
+
+  TEST_ASSERT_EQUAL_INT(ERROR, result);
+}
+
+void test_read_float_input_below_min_value(void) {
+  float value;
+  simulate_stdin("5.0\n");
+
+  int result =
+      read_float(&value, "Test Value", "Test", 10, true, 10.0, 6.0, true, true);
+
+  TEST_ASSERT_EQUAL_INT(ERROR, result);
+}
+
+void test_read_float_input_above_max_value(void) {
+  float value;
+  simulate_stdin("25.0\n");
+
+  int result = read_float(&value, "Test Value", "Test", 10, true, 20.0, 10.0,
+                          true, true);
+
+  TEST_ASSERT_EQUAL_INT(ERROR, result);
+}
+
+void test_read_float_valid_input_with_no_restriction(void) {
+  float value;
+  simulate_stdin("15.5\n");
+
+  int result = read_float(&value, "Test Value", "Test", 10, false, 20.0, 10.0,
+                          true, true);
+
+  TEST_ASSERT_EQUAL_FLOAT(15.5, value);
+  TEST_ASSERT_EQUAL_INT(SUCCESS, result);
+}
+
+void test_read_float_input_exceeds_max_length(void) {
+  float value;
+  simulate_stdin("1234567890.1234567890\n");  // Exceeds max_char_count of 10
+
+  int result = read_float(&value, "Test Value", "Test", 10, true, 20.0, 10.0,
+                          true, true);
+
+  TEST_ASSERT_EQUAL_INT(ERROR, result);
+}
+
+void test_read_float_input_precision_warning(void) {
+  float value;
+  simulate_stdin("15.123456\n");
+
+  int result = read_float(&value, "Test Value", "Test", 10, true, 20.0, 10.0,
+                          true, true);
+
+  TEST_ASSERT_EQUAL_FLOAT(15.123456, value);
+  TEST_ASSERT_EQUAL_INT(SUCCESS, result);
+  // Assuming there is a way to check for warnings, this test could include a
+  // check for a warning message
+}
+
+// DOUBLE
+
+void test_read_double_valid_input_within_unrestricted_range(void) {
+  double value;
+  simulate_stdin("123.456\n");
+  int result =
+      read_double(&value, "Число", "Ч", 10, false, 0.0, 0.0, false, false);
+  TEST_ASSERT_EQUAL(SUCCESS, result);
+  TEST_ASSERT_EQUAL_DOUBLE(123.456, value);
+}
+
+void test_read_double_valid_input_within_restricted_range(void) {
+  double value;
+  simulate_stdin("50.25\n");
+  int result =
+      read_double(&value, "Число", "Ч", 10, true, 100.0, 50.0, true, true);
+  TEST_ASSERT_EQUAL(SUCCESS, result);
+  TEST_ASSERT_EQUAL_DOUBLE(50.25, value);
+}
+
+void test_read_double_input_outside_range(void) {
+  double value;
+  simulate_stdin("200.0\n");
+  int result =
+      read_double(&value, "Число", "Ч", 10, true, 100.0, 50.0, true, true);
+  TEST_ASSERT_EQUAL(ERROR, result);
+}
+
+void test_read_double_input_not_a_number(void) {
+  double value;
+  simulate_stdin("not_a_number\n");
+  int result =
+      read_double(&value, "Число", "Ч", 10, false, 0.0, 0.0, false, false);
+  TEST_ASSERT_EQUAL(ERROR, result);
+}
+
+void test_read_double_input_overlength(void) {
+  double value;
+  simulate_stdin("12345678901\n");  // Exceeds max_char_count
+  int result =
+      read_double(&value, "Число", "Ч", 10, false, 0.0, 0.0, false, false);
+  TEST_ASSERT_EQUAL(ERROR, result);
+}
+
+void test_read_double_underflow(void) {
+  double value;
+  simulate_stdin("1e-400\n");  // Value underflows
+  int result =
+      read_double(&value, "Число", "Ч", 10, false, 0.0, 0.0, false, false);
+  TEST_ASSERT_EQUAL(ERROR, result);
+}
+
+void test_read_double_overflow(void) {
+  double value;
+  simulate_stdin("1e+400\n");  // Value overflows
+  int result =
+      read_double(&value, "Число", "Ч", 10, false, 0.0, 0.0, false, false);
+  TEST_ASSERT_EQUAL(ERROR, result);
+}
+
+void test_read_double_imprecise_input(void) {
+  double value;
+  simulate_stdin("123.45678901234567890\n");  // Exceeds precision
+  int result =
+      read_double(&value, "Число", "Ч", 25, false, 0.0, 0.0, false, false);
+  TEST_ASSERT_EQUAL(SUCCESS, result);
+  TEST_ASSERT_DOUBLE_WITHIN(DBL_EPSILON, 123.45678901234567890, value);
+}
+// LONG DOUBLE
+void test_read_long_double_within_range(void) {
+  simulate_stdin("123.456\n");
+  long double value;
+  int result = read_long_double(&value, "Positive Number", "Num", 50, true,
+                                200.0L, 100.0L, true, true);
+  TEST_ASSERT_EQUAL(SUCCESS, result);
+  TEST_ASSERT_DOUBLE_WITHIN(LDBL_EPSILON, 123.456L, value);
+}
+
+void test_read_long_double_below_min(void) {
+  simulate_stdin("99.999\n");
+  long double value;
+  int result = read_long_double(&value, "Test Number", "Num", 50, true, 200.0L,
+                                100.0L, true, true);
+  TEST_ASSERT_EQUAL(ERROR, result);
+}
+
+void test_read_long_double_above_max(void) {
+  simulate_stdin("201.001\n");
+  long double value;
+  int result = read_long_double(&value, "Test Number", "Num", 50, true, 200.0L,
+                                100.0L, true, true);
+  TEST_ASSERT_EQUAL(ERROR, result);
+}
+
+void test_read_long_double_edge_min(void) {
+  simulate_stdin("100.0\n");
+  long double value;
+  int result = read_long_double(&value, "Edge Test", "Num", 50, true, 200.0L,
+                                100.0L, true, true);
+  TEST_ASSERT_EQUAL(SUCCESS, result);
+  TEST_ASSERT_DOUBLE_WITHIN(LDBL_EPSILON, 100.0L, value);
+}
+
+void test_read_long_double_edge_max(void) {
+  simulate_stdin("200.0\n");
+  long double value;
+  int result = read_long_double(&value, "Edge Test", "Num", 50, true, 200.0L,
+                                100.0L, true, true);
+  TEST_ASSERT_EQUAL(SUCCESS, result);
+  TEST_ASSERT_DOUBLE_WITHIN(LDBL_EPSILON, 200.0L, value);
+}
+
+void test_read_long_double_out_of_range_underflow(void) {
+  simulate_stdin("1e-5000\n");
+  long double value;
+  int result = read_long_double(&value, "Underflow Test", "Num", 50, false, 0,
+                                0, false, false);
+  TEST_ASSERT_EQUAL(ERROR, result);
+}
+
+void test_read_long_double_out_of_range_overflow(void) {
+  simulate_stdin("1e5000\n");
+  long double value;
+  int result = read_long_double(&value, "Overflow Test", "Num", 50, false, 0, 0,
+                                false, false);
+  TEST_ASSERT_EQUAL(ERROR, result);
+}
+
+void test_read_long_double_not_a_number(void) {
+  simulate_stdin("abcd\n");
+  long double value;
+  int result = read_long_double(&value, "Invalid Input", "Num", 50, false, 0, 0,
+                                false, false);
+  TEST_ASSERT_EQUAL(ERROR, result);
+}
+
+void test_read_long_double_truncated_precision(void) {
+  simulate_stdin("123.45678901234567890\n");
+  long double value;
+  int result = read_long_double(&value, "Precision Test", "Num", 50, false, 0,
+                                0, false, false);
+  TEST_ASSERT_EQUAL(SUCCESS, result);
+  TEST_ASSERT_DOUBLE_WITHIN(LDBL_EPSILON, 123.45678901234568L,
+                            value);  // Precision limited to LDBL_DIG
+}
+
+void test_read_long_double_length_exceeded(void) {
+  simulate_stdin("1234567890123456789012345678901234567890\n");
+  long double value;
+  int result = read_long_double(&value, "Length Test", "Num", 20, false, 0, 0,
+                                false, false);
+  TEST_ASSERT_EQUAL(ERROR, result);
+}
+
 void test_read() {
   RUN_TEST(test_read_int_valid_input);
   RUN_TEST(test_read_int_out_of_range_high);
@@ -317,4 +558,33 @@ void test_read() {
   RUN_TEST(test_read_long_long_int_value_exclusive_upper);
   RUN_TEST(test_read_long_long_int_valid_input_with_inclusive_range);
   RUN_TEST(test_read_long_long_int_value_outside_inclusive_range);
+
+  RUN_TEST(test_read_float_valid_input_within_range);
+  RUN_TEST(test_read_float_invalid_input_not_a_number);
+  RUN_TEST(test_read_float_invalid_input_overflow);
+  RUN_TEST(test_read_float_input_below_min_value);
+  RUN_TEST(test_read_float_input_above_max_value);
+  RUN_TEST(test_read_float_valid_input_with_no_restriction);
+  RUN_TEST(test_read_float_input_exceeds_max_length);
+  RUN_TEST(test_read_float_input_precision_warning);
+
+  RUN_TEST(test_read_double_valid_input_within_unrestricted_range);
+  RUN_TEST(test_read_double_valid_input_within_restricted_range);
+  RUN_TEST(test_read_double_input_outside_range);
+  RUN_TEST(test_read_double_input_not_a_number);
+  RUN_TEST(test_read_double_input_overlength);
+  RUN_TEST(test_read_double_underflow);
+  RUN_TEST(test_read_double_overflow);
+  RUN_TEST(test_read_double_imprecise_input);
+
+  RUN_TEST(test_read_long_double_within_range);
+  RUN_TEST(test_read_long_double_below_min);
+  RUN_TEST(test_read_long_double_above_max);
+  RUN_TEST(test_read_long_double_edge_min);
+  RUN_TEST(test_read_long_double_edge_max);
+  RUN_TEST(test_read_long_double_out_of_range_underflow);
+  RUN_TEST(test_read_long_double_out_of_range_overflow);
+  RUN_TEST(test_read_long_double_not_a_number);
+  RUN_TEST(test_read_long_double_truncated_precision);
+  RUN_TEST(test_read_long_double_length_exceeded);
 }
