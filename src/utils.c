@@ -133,14 +133,13 @@ int ask_repeat() {
 
   if (!fgets(choice, sizeof(choice), stdin)) {
     printf("Помилка читання вводу.\n");
+    clear_stdin();
     return ERROR;
   }
 
   if (choice[0] == '+' && choice[1] == '\n') {
     return SUCCESS;
   }
-
-  clear_stdin();
 
   return ERROR;
 }

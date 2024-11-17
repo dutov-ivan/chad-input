@@ -75,9 +75,11 @@ void print_truncated_float(float num, int decimal_places) {
 }
 
 // Main Read Function
-int read_float_and_validate(float *value, const char *full_name, const char *short_name,
-               int max_char_count, bool is_restricted, float max_value,
-               float min_value, bool is_max_included, bool is_min_included) {
+int read_float_and_validate(float *value, const char *full_name,
+                            const char *short_name, int max_char_count,
+                            bool is_restricted, float max_value,
+                            float min_value, bool is_max_included,
+                            bool is_min_included) {
   char input[max_char_count + 2];
   errno = 0;
 
@@ -121,6 +123,9 @@ int read_float_and_validate(float *value, const char *full_name, const char *sho
 
   if (!is_numeric_input_precise(input, MAX_SIGNIFICANT_DIGITS)) {
     show_warning_not_precise(MAX_SIGNIFICANT_DIGITS);
+    if (ask_repeat() == ERROR) {
+      return ERROR;
+    }
   }
 
   return SUCCESS;
