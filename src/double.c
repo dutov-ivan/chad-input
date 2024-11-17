@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #include "common.h"
-#include "test.h"
+#include "input.h"
 
 #define TOLERANCE DBL_EPSILON
 #define MIN_ABSOLUTE_VALUE DBL_MIN
@@ -23,8 +23,8 @@ void prompt_user_for_double(const char *name, bool is_restricted,
   }
 }
 
-void show_range_error_double(const char *name, RangeCheckResult result,
-                             double min_value, double max_value) {
+int show_range_error_double(const char *name, RangeCheckResult result,
+                            double min_value, double max_value) {
   switch (result) {
     case LESS:
       show_error("%s має бути більший-рівний %lg.\n", name, min_value);
@@ -41,6 +41,7 @@ void show_range_error_double(const char *name, RangeCheckResult result,
     default:
       break;
   }
+  return PIPE;
 }
 
 // Range Checking Functions
@@ -74,7 +75,7 @@ void print_truncated_double(double num, int decimal_places) {
 }
 
 // Main Read Function
-int read_double(double *value, const char *full_name, const char *short_name,
+int read_double_and_validate(double *value, const char *full_name, const char *short_name,
                 int max_char_count, bool is_restricted, double max_value,
                 double min_value, bool is_max_included, bool is_min_included) {
   char input[max_char_count + 2];

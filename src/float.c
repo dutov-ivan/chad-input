@@ -6,7 +6,6 @@
 #include "common.h"
 #include "errno.h"
 #include "input.h"
-#include "test.h"
 
 #define TOLERANCE FLT_EPSILON
 #define MIN_ABSOLUTE_VALUE FLT_MIN
@@ -24,8 +23,8 @@ void prompt_user_for_float(const char *name, bool is_restricted,
   }
 }
 
-void show_range_error_float(const char *name, RangeCheckResult result,
-                            float min_value, float max_value) {
+int show_range_error_float(const char *name, RangeCheckResult result,
+                           float min_value, float max_value) {
   switch (result) {
     case LESS:
       show_error("%s має бути більший-рівний %g.\n", name, min_value);
@@ -42,6 +41,7 @@ void show_range_error_float(const char *name, RangeCheckResult result,
     default:
       break;
   }
+  return PIPE;
 }
 
 // Range Checking Functions
@@ -75,7 +75,7 @@ void print_truncated_float(float num, int decimal_places) {
 }
 
 // Main Read Function
-int read_float(float *value, const char *full_name, const char *short_name,
+int read_float_and_validate(float *value, const char *full_name, const char *short_name,
                int max_char_count, bool is_restricted, float max_value,
                float min_value, bool is_max_included, bool is_min_included) {
   char input[max_char_count + 2];

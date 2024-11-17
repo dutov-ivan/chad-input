@@ -1,7 +1,7 @@
 #include <errno.h>
 #include <float.h>
 
-#include "../src/test.h"
+#include "../src/input.h"
 #include "../unity/src/unity.h"
 #include "test.h"
 

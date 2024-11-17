@@ -6,7 +6,6 @@
 
 #include "common.h"
 #include "input.h"
-#include "test.h"
 
 #define TOLERANCE LDBL_EPSILON
 #define MIN_ABSOLUTE_VALUE LDBL_MIN
@@ -24,9 +23,8 @@ void prompt_user_for_long_double(const char *name, bool is_restricted,
   }
 }
 
-void show_range_error_long_double(const char *name, RangeCheckResult result,
-                                  long double min_value,
-                                  long double max_value) {
+int show_range_error_long_double(const char *name, RangeCheckResult result,
+                                 long double min_value, long double max_value) {
   switch (result) {
     case LESS:
       show_error("%s має бути більший-рівний %Lg.\n", name, min_value);
@@ -43,6 +41,7 @@ void show_range_error_long_double(const char *name, RangeCheckResult result,
     default:
       break;
   }
+  return PIPE;
 }
 
 // Range Checking Functions
@@ -79,7 +78,7 @@ void print_truncated_long_double(long double num, int decimal_places) {
 }
 
 // Main Read Function
-int read_long_double(long double *value, const char *full_name,
+int read_long_double_and_validate(long double *value, const char *full_name,
                      const char *short_name, int max_char_count,
                      bool is_restricted, long double max_value,
                      long double min_value, bool is_max_included,

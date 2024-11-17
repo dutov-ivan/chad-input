@@ -6,7 +6,6 @@
 
 #include "common.h"
 #include "input.h"
-#include "test.h"
 
 #define MAX_VALUE LONG_MAX
 #define MIN_VALUE LONG_MIN
@@ -20,8 +19,8 @@ void prompt_user_input_long_int(const char *name, bool is_restricted,
   }
 }
 
-void show_range_error_long_int(const char *name, RangeCheckResult result,
-                               long int min_value, long int max_value) {
+int show_range_error_long_int(const char *name, RangeCheckResult result,
+                              long int min_value, long int max_value) {
   switch (result) {
     case LESS:
       show_error("%s має бути більший-рівний %ld.\n", name, min_value);
@@ -38,6 +37,7 @@ void show_range_error_long_int(const char *name, RangeCheckResult result,
     default:
       break;
   }
+  return PIPE;
 }
 
 // Range Checking Functions
@@ -61,7 +61,7 @@ RangeCheckResult validate_overflow_long_int(long int value) {
   return WITHIN_RANGE;
 }
 
-int read_long_int(long int *value, const char *full_name,
+int read_long_int_and_validate(long int *value, const char *full_name,
                   const char *short_name, long int max_char_count,
                   bool is_restricted, long int max_value, long int min_value,
                   bool is_max_included, bool is_min_included) {

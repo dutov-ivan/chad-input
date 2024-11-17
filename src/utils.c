@@ -4,7 +4,6 @@
 
 #include "common.h"
 #include "input.h"
-#include "test.h"
 
 int show_error(const char *format, ...) {
   va_list args;
