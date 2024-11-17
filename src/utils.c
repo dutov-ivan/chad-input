@@ -56,7 +56,7 @@ int show_warning_not_precise(int max_significant_digits) {
   return PIPE;
 }
 
-void clear_input() {
+void clear_stdin() {
   int c;
   while ((c = getchar()) != '\n' && c != EOF);
 }
@@ -96,7 +96,7 @@ bool is_input_within_length(const char *input) {
   return (input[strlen(input) - 1] == '\n');
 }
 
-bool is_input_precise(const char *input, int max_significant_digits) {
+bool is_numeric_input_precise(const char *input, int max_significant_digits) {
   int significant_digits = 0;
 
   for (size_t i = 0; i < strlen(input); i++) {
@@ -115,7 +115,7 @@ bool is_input_precise(const char *input, int max_significant_digits) {
 }
 
 bool is_input_number_after_conversion(const char *endptr, const char *input) {
-  return (endptr == input || *endptr != '\n');
+  return (endptr != input && *endptr == '\n');
 }
 
 int read_input(char *input, int max_char_count, const char *name) {
@@ -141,7 +141,7 @@ int ask_repeat() {
     return SUCCESS;
   }
 
-  clear_input();
+  clear_stdin();
 
   return ERROR;
 }

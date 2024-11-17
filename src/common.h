@@ -31,10 +31,10 @@ int show_error_NaN(const char *name);
 void replace_commas_with_dots(char *string);
 
 bool is_input_floating_point(char *str);
-bool is_input_precise(const char *input, int max_significant_digits);
+bool is_numeric_input_precise(const char *input, int max_significant_digits);
 bool is_input_within_length(const char *input);
 bool is_input_number_after_conversion(const char *endptr, const char *input);
 
-void clear_input();
+void clear_stdin();
 int read_input(char *input, int max_char_count, const char *name);
 #endif

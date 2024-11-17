@@ -1,4 +1,4 @@
-project('input_library', 'c')
+project('chad-input', 'c')
 
 # Compiler flags and include directories
 c_args = ['-I.', '-Iunity/src', '-Isrc', '-g' ]
@@ -16,13 +16,11 @@ test_sources = [
   'src/long_double.c',
 
   # Input tests 
-  'test/test_input_checks.c',
-  'test/test_read_input.c',
-  'test/test_show_range.c',
-  'test/test_truncation.c',
+  'test/test_read.c',
+  'test/test_range.c',
+  'test/test_truncate.c',
   'test/test_utils.c',
-  'test/test_validate_overflow.c',
-  'test/test_validate_range.c',
+  'test/test_overflow.c',
 
   # Testing library import
   'test/test.c',

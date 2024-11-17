@@ -88,7 +88,7 @@ int read_double(double *value, const char *full_name, const char *short_name,
 
   if (!is_input_within_length(input)) {
     show_error_overlength(full_name, max_char_count);
-    clear_input();
+    clear_stdin();
     return ERROR;
   }
 
@@ -118,7 +118,7 @@ int read_double(double *value, const char *full_name, const char *short_name,
     }
   }
 
-  if (!is_input_precise(input, MAX_SIGNIFICANT_DIGITS)) {
+  if (!is_numeric_input_precise(input, MAX_SIGNIFICANT_DIGITS)) {
     show_warning_not_precise(MAX_SIGNIFICANT_DIGITS);
   }
 

@@ -65,7 +65,7 @@ RangeCheckResult validate_overflow_long_long_int(long long int value) {
   return WITHIN_RANGE;
 }
 
-int read_long_long_int(int *value, const char *full_name,
+int read_long_long_int(long long int *value, const char *full_name,
                        const char *short_name, long long int max_char_count,
                        bool is_restricted, long long int max_value,
                        long long int min_value, bool is_max_included,
@@ -82,7 +82,7 @@ int read_long_long_int(int *value, const char *full_name,
 
   if (!is_input_within_length(input)) {
     show_error_overlength(full_name, max_char_count);
-    clear_input();
+    clear_stdin();
     return ERROR;
   }
 

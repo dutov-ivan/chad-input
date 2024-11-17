@@ -8,11 +8,12 @@
 // Utils
 void replace_commas_with_dots(char *string);
 int ask_repeat();
-void clear_input();
+
+void clear_stdin();
 
 // Input checks
 bool is_input_floating_point(char *str);
-bool is_input_precise(const char *input, int max_significant_digits);
+bool is_numeric_input_precise(const char *input, int max_significant_digits);
 bool is_input_within_length(const char *input);
 bool is_input_number_after_conversion(const char *endptr, const char *input);
 
@@ -78,11 +79,11 @@ int read_int(int *value, const char *full_name, const char *short_name,
              int max_char_count, bool is_restricted, int max_value,
              int min_value, bool is_max_included, bool is_min_included);
 
-int read_long_int(int *value, const char *full_name, const char *short_name,
-                  long int max_char_count, bool is_restricted,
-                  long int max_value, long int min_value, bool is_max_included,
-                  bool is_min_included);
-int read_long_long_int(int *value, const char *full_name,
+int read_long_int(long int *value, const char *full_name,
+                  const char *short_name, long int max_char_count,
+                  bool is_restricted, long int max_value, long int min_value,
+                  bool is_max_included, bool is_min_included);
+int read_long_long_int(long long int *value, const char *full_name,
                        const char *short_name, long long int max_char_count,
                        bool is_restricted, long long int max_value,
                        long long int min_value, bool is_max_included,

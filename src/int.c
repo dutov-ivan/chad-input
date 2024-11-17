@@ -69,7 +69,7 @@ int read_int(int *value, const char *full_name, const char *short_name,
 
   if (!is_input_within_length(input)) {
     show_error_overlength(full_name, max_char_count);
-    clear_input();
+    clear_stdin();
     return ERROR;
   }
 
